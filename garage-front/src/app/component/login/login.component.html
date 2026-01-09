@@ -1,0 +1,22 @@
+<div class="container text-center mt-5">
+  <h1>🏁 Sélectionnez votre pilote</h1>
+  <div class="row mt-4">
+    <div class="col-md-4 mb-3" *ngFor="let user of users">
+      <div class="card profile-card" (click)="selectProfile(user)" style="cursor: pointer;">
+        <div class="card-body">
+          <h3>{{ user.username }}</h3>
+          <p class="text-muted">Niveau {{ user.level }}</p>
+          <button class="btn btn-primary">Charger</button>
+          <button class="btn btn-outline-danger" 
+                (click)="deleteProfile(user.id, $event)">
+          🗑️
+        </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-12 mt-4">
+        <a routerLink="/adduser" class="btn btn-success">Créer un nouveau pilote</a>
+    </div>
+  </div>
+</div>
