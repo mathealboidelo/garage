@@ -41,4 +41,8 @@ export class DashboardComponent implements OnInit {
     this.userService.logout();
     this.router.navigate(['/']);
   }
+
+  goToDealership(){
+    this.router.navigate(['/dealership']);
+  }
 }

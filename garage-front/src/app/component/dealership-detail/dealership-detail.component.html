@@ -1,0 +1,18 @@
+<h2 class="mb-3">{{ dealership?.name }} </h2>
+
+<button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>
+
+<div class="container mt-4" *ngFor="let cars of dealership?.cars">
+    <div class="row">
+        <h3 class="card-title">{{ cars.name }}</h3>
+        <h4 class="card-title">{{ cars.power }} Ch</h4>
+        <h4 class="card-title">{{ cars.price }} €</h4>
+        <h4 class="card-title">{{ cars.weight }} Kg</h4>
+        <h4 class="card-title">Aspiration Type : {{ cars.aspiration }}</h4>
+        <h4 class="card-title">Default Tires : {{ cars.tireType }}</h4>
+        <h4 class="card-title">Grip Modifier : {{ cars.gripModifier }}</h4>
+        
+    </div>
+</div>
+
+<button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>

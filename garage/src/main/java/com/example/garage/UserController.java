@@ -19,6 +19,9 @@ public class UserController {
 	@Autowired
     private UserRepository userRepository;
 	
+	@Autowired
+	private CarRepository carRepository;
+	
 	@GetMapping("/api/player")
 	public User getPlayer() {
         // Attention: crash si la base est vide, il faudra gérer ça plus tard
@@ -52,6 +55,14 @@ public class UserController {
 	@DeleteMapping("/api/deleteuser/{id}")
 	public void deleteUser(@PathVariable Long id) {
 		userRepository.deleteById(id);
+	}
+	
+	@PostMapping("/api/buy")
+	public void addCarToGarage(@RequestBody BuyRequest request) {
+		User user = userRepository.findById(request.userId()).orElseThrow();
+	    Car car = carRepository.findById(request.carId()).orElseThrow();
+	    
+	    user.getGarage().add(car);
 	}
 	
 

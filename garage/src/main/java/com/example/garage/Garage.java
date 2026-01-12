@@ -57,6 +57,10 @@ public class Garage {
 	public void setUser(User user) {
 		this.user = user;
 	}
+	
+	public void add(Car car) {
+		cars.add(car);
+	}
     
     
 }

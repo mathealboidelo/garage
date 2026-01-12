@@ -15,4 +15,8 @@ export class DealershipService {
   public findAll() : Observable<Dealership[]> {
     return this.http.get<Dealership[]>(this.dealershipUrl);
   }
+
+  public findById(id: number) : Observable<Dealership>{
+    return this.http.get<Dealership>(`${this.dealershipUrl}/${id}`)
+  }
 }

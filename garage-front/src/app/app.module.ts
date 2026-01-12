@@ -9,6 +9,8 @@ import { UserFormComponent } from './component/user-form/user-form.component';
 import { UserListComponent } from './component/user-list/user-list.component';
 import { LoginComponent } from './component/login/login.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
+import { DealershipComponent } from './component/dealership/dealership.component';
+import { DealershipDetailComponent } from './component/dealership-detail/dealership-detail.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +18,9 @@ import { DashboardComponent } from './component/dashboard/dashboard.component';
     UserFormComponent,
     UserListComponent,
     LoginComponent,
-    DashboardComponent
+    DashboardComponent,
+    DealershipComponent,
+    DealershipDetailComponent
   ],
   imports: [
     BrowserModule,

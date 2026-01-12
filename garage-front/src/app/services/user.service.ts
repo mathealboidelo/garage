@@ -2,18 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { User } from '../class/user';
+import { Car } from '../class/car';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 
-  // URL pour le dashboard (1 seul joueur)
-  private playerUrl = 'http://localhost:8080/api/player';
   // URL pour la gestion (liste et ajout)
   private usersUrl = 'http://localhost:8080/api/users';
 
   private deleteUrl = 'http://localhost:8080/api/deleteuser';
+
+  private buyCarApi = 'http://localhost:8080/api/buy'
 
   constructor(private http: HttpClient) { }
 
@@ -42,6 +43,10 @@ export class UserService {
   public getSession(): User | null {
     const userJson = localStorage.getItem('currentUser');
     return userJson ? JSON.parse(userJson) : null;
+  }
+
+  public buyCar(user: User, car: Car) {
+    return this.http.get<User>(this.buyCarApi, user, car);
   }
 
   // 4. Déconnexion
