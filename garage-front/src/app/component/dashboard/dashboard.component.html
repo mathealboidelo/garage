@@ -16,9 +16,22 @@
               <h3>Niveau</h3>
               <p class="display-4">{{ user.level }}</p>
           </div>
+          <div class="col-md-6">
+              <h3>Voitures </h3>
+              <div class="display-4" *ngFor="let cars of user.garage.cars">
+                <h4 class="card-title">{{ cars.name }}</h4>
+                <p class="card-title">{{ cars.power }} Ch</p>
+                <p class="card-title">{{ cars.weight }} Kg</p>
+                <p class="card-title">Aspiration Type : {{ cars.aspiration }}</p>
+                <p class="card-title">Default Tires : {{ cars.tireType }}</p>
+                <p class="card-title">Grip Modifier : {{ cars.gripModifier }}</p>
+              </div>
+          </div>
       </div>
     </div>
   </div>
 </div>
+
+<button (click)="cheat()" class="btn btn-danger">Ajouter 10 000 Crédit</button>
 
 <button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>

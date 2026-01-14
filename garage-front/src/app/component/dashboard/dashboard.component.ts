@@ -37,6 +37,18 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  cheat(){
+    this.userService.cheat().subscribe(() => {
+      alert("💸 Kaching ! +10 000 crédits");
+    
+    // Astuce pour mettre à jour l'affichage sans recharger la page :
+    // On ajoute manuellement les crédits à l'utilisateur actuellement affiché
+    if (this.user) {
+        this.user.credits += 10000;
+    }
+    });
+  }
+
   logout() {
     this.userService.logout();
     this.router.navigate(['/']);

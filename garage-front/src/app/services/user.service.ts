@@ -45,12 +45,24 @@ export class UserService {
     return userJson ? JSON.parse(userJson) : null;
   }
 
-  public buyCar(user: User, car: Car) {
-    return this.http.get<User>(this.buyCarApi, user, car);
+  public buyCar(user: User | null, car: Car) {
+
+    const body = {
+      userId: user?.id,
+      carId: car.id
+    };
+
+    return this.http.post(this.buyCarApi, body, { responseType: 'text' });
   }
 
   // 4. Déconnexion
   public logout(): void {
     localStorage.removeItem('currentUser');
+  }
+
+  public cheat(){
+
+    const sessionUser = this.getSession();
+    return this.http.post(`http://localhost:8080/api/cheatmoney/${sessionUser?.id}`, {} , { responseType: 'text' })
   }
 }

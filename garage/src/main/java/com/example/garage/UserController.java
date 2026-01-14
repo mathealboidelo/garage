@@ -58,12 +58,40 @@ public class UserController {
 	}
 	
 	@PostMapping("/api/buy")
-	public void addCarToGarage(@RequestBody BuyRequest request) {
+	public ResponseEntity<String> addCarToGarage(@RequestBody BuyRequest request) {
 		User user = userRepository.findById(request.userId()).orElseThrow();
 	    Car car = carRepository.findById(request.carId()).orElseThrow();
 	    
-	    user.getGarage().add(car);
+	 // 2. Vérification de sécurité (Le serveur est le juge suprême)
+	    if (user.getCredits() < car.getPrice()) {
+	        return ResponseEntity.badRequest().body("Pas assez d'argent !");
+	    }
+
+	    // 3. La Transaction
+	    user.setCredits(user.getCredits() - (int)car.getPrice()); // On déduit l'argent
+	    
+	    // On enlève la voiture du concessionnaire
+	    // Attention : il faut gérer la liste du dealership si nécessaire, 
+	    car.setGarage(user.getGarage()); // La voiture appartient maintenant au garage du joueur
+
+	    // 4. Sauvegarde (JPA est intelligent, sauver la voiture mettra à jour le user et le garage)
+	    carRepository.save(car);
+	    userRepository.save(user);
+
+	    return ResponseEntity.ok("Achat réussi !");
 	}
 	
+	@PostMapping("/api/cheatmoney/{id}")
+	public ResponseEntity<String> cheatMoney(@PathVariable Long id){
+		var u = userRepository.findById(id)
+        .map(user -> ResponseEntity.ok().body(user))
+        .orElse(ResponseEntity.notFound().build()).getBody();
+		
+		u.setCredits(u.getCredits() + 10000);
+		
+		userRepository.save(u);
+		
+		return ResponseEntity.ok("Argent ajouter !");
+	}
 
 }
