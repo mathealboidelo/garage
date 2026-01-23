@@ -11,6 +11,8 @@ import { LoginComponent } from './component/login/login.component';
 import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { DealershipComponent } from './component/dealership/dealership.component';
 import { DealershipDetailComponent } from './component/dealership-detail/dealership-detail.component';
+import { ParkingComponent } from './component/parking/parking.component';
+import { ParkingDetailComponent } from './component/parking-detail/parking-detail.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +22,9 @@ import { DealershipDetailComponent } from './component/dealership-detail/dealers
     LoginComponent,
     DashboardComponent,
     DealershipComponent,
-    DealershipDetailComponent
+    DealershipDetailComponent,
+    ParkingComponent,
+    ParkingDetailComponent
   ],
   imports: [
     BrowserModule,

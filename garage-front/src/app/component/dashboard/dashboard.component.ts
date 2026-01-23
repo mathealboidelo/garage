@@ -57,4 +57,8 @@ export class DashboardComponent implements OnInit {
   goToDealership(){
     this.router.navigate(['/dealership']);
   }
+
+  goToParkings(){
+    this.router.navigate(['/parkings'])
+  }
 }

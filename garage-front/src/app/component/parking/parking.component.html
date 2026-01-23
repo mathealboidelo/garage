@@ -1,0 +1,22 @@
+
+<div class="container mt-4" *ngIf="parkings.length > 0">
+    <h2 class="mb-3">🏭 Concessionnaires disponibles</h2>
+    
+    <div class="row">
+        <div class="col-md-4 mb-3" *ngFor="let parking of parkings">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h4 class="card-title">{{ parking.name }}</h4>
+
+                    <button (click)="visitParking(parking.id)" class="btn btn-outline-primary">Visiter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4" *ngIf="parkings.length === 0">
+    <div class="alert alert-warning">Aucun concessionnaire trouvé dans la région.</div>
+</div>
+
+<button (click)="stayGarage()" class="btn btn-outline-primary">Rester au garage</button>

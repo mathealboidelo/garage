@@ -1,7 +1,7 @@
 <h2 class="mb-3">{{ dealership?.name }} </h2>
 
 <button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>
-
+ 
 <div class="container mt-4" *ngFor="let cars of dealership?.cars">
     <div class="row">
         <h3 class="card-title">{{ cars.name }}</h3>

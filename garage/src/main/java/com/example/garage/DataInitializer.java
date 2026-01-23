@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class DataInitializer {
 
     @Bean
-    public CommandLineRunner initData(UserRepository userRepository, DealershipRepository dealershipRepository, CarRepository carRepository) {
+    public CommandLineRunner initData(UserRepository userRepository, DealershipRepository dealershipRepository, CarRepository carRepository, ParkingRepository parkingRepository) {
         return args -> {
             
             // --- PARTIE 1 : INITIALISATION JOUEUR ---
@@ -55,6 +55,26 @@ public class DataInitializer {
                 System.out.println("Concessionnaire et voitures créés.");
             } else {
                 System.out.println("Le concessionnaire existe déjà.");
+            }
+            
+            if(parkingRepository.count() == 0) {
+            	var race1 = new Race();
+            	race1.setName("Test race 1");
+            	race1.setStraigthLine(100);
+            	race1.setCorner(10);
+            	
+            	var parking = new Parking();
+            	parking.setName("Test Parking 1");
+            	
+            	if (parking.getRace() == null) {
+            		parking.setRace(new ArrayList<>());
+                }
+            	
+            	parking.add(race1);
+            	
+            	parkingRepository.save(parking);
+            	
+            	System.out.println("Le parking à été créé !! ");
             }
         };
     }
