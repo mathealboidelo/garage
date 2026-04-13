@@ -1,0 +1,195 @@
+/* ── Dashboard ────────────────────────────────────────── */
+
+:host { display: block; padding: 2rem 0; }
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-subtle);
+  position: relative;
+}
+.dashboard-header::after {
+  content: attr(data-label);
+  position: absolute;
+  bottom: -.55rem; left: 0;
+  font-family: var(--font-mono);
+  font-size: .55rem;
+  color: var(--text-muted);
+  letter-spacing: .3em;
+  background: var(--bg-deep);
+  padding-right: .8rem;
+}
+
+.pilot-name {
+  font-family: var(--font-hud);
+  font-size: clamp(.9rem, 2vw, 1.2rem);
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  margin-top: .4rem;
+}
+.pilot-name span { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1px;
+  background: var(--border-subtle);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 2rem;
+}
+.stat-cell {
+  background: var(--bg-card);
+  padding: 1.25rem 1.5rem;
+  position: relative;
+}
+.stat-cell::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--neon-cyan);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .4s ease;
+}
+.stat-cell:hover::before { transform: scaleX(1); }
+
+.hud-label {
+  font-family: var(--font-mono);
+  font-size: .6rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .25em; margin-bottom: .4rem;
+}
+.hud-value {
+  font-family: var(--font-mono);
+  font-size: 1.8rem; font-weight: 400; line-height: 1;
+}
+.hud-value.gold   { color: var(--neon-gold);  text-shadow: var(--glow-gold); }
+.hud-value.level  { color: var(--neon-cyan);  text-shadow: var(--glow-cyan); }
+
+/* Garage */
+.garage-section { margin-top: 0; }
+.garage-title {
+  font-family: var(--font-mono);
+  font-size: .6rem; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: .35em;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: .75rem;
+}
+.garage-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border-subtle), transparent);
+}
+
+/* Car entry */
+.car-entry {
+  border: 1px solid rgba(255,0,60,.15);
+  border-left: 3px solid var(--neon-magenta);
+  background: var(--bg-card);
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1px;
+  transition: border-color .25s;
+}
+.car-entry:hover {
+  border-color: rgba(255,0,60,.35);
+  border-left-color: var(--neon-magenta);
+  box-shadow: -2px 0 12px rgba(255,0,60,.15);
+}
+
+.car-name {
+  font-family: var(--font-hud);
+  font-size: 1rem; font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase; letter-spacing: .12em;
+}
+
+.car-specs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: .5rem 1rem;
+  margin-bottom: .5rem;
+}
+.car-spec { display: flex; flex-direction: column; gap: .1rem; }
+.car-spec-label {
+  font-family: var(--font-mono); font-size: .55rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .18em;
+}
+.car-spec-value {
+  font-family: var(--font-mono); font-size: .85rem;
+  color: var(--neon-magenta); text-shadow: 0 0 6px rgba(255,0,60,.3);
+}
+
+/* Tier badge */
+.racer-badge {
+  font-family: var(--font-hud); font-size: .75rem; font-weight: 900;
+  width: 30px; height: 30px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid; border-radius: 2px; flex-shrink: 0;
+}
+.racer-badge[data-tier="S"] { color:#ff003c; border-color:#ff003c; text-shadow:var(--glow-magenta); }
+.racer-badge[data-tier="A"] { color:#ff8c00; border-color:#ff8c00; }
+.racer-badge[data-tier="B"] { color:#ffd700; border-color:#ffd700; text-shadow:var(--glow-gold); }
+.racer-badge[data-tier="C"] { color:#00f0ff; border-color:#00f0ff; text-shadow:var(--glow-cyan); }
+.racer-badge[data-tier="D"] { color:var(--text-muted); border-color:var(--text-muted); }
+
+/* Stat bars */
+.stat-bar { display: flex; flex-direction: column; gap: .15rem; }
+.stat-bar-label {
+  font-family: var(--font-mono); font-size: .58rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .15em;
+  display: flex; justify-content: space-between;
+}
+.stat-bar-label span:last-child { color: var(--text-secondary); }
+.stat-bar-track {
+  height: 3px; background: rgba(255,255,255,.05); border-radius: 2px; overflow: hidden;
+}
+.stat-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon-cyan), rgba(0,240,255,.4));
+  box-shadow: var(--glow-cyan); border-radius: 2px;
+  transition: width .8s cubic-bezier(.16,1,.3,1);
+}
+.stat-bar-fill.danger {
+  background: linear-gradient(90deg, var(--neon-magenta), rgba(255,0,60,.4));
+  box-shadow: var(--glow-magenta);
+}
+
+/* Action row */
+.action-row {
+  display: flex; flex-wrap: wrap; gap: .75rem;
+  margin-top: 2rem; padding-top: 1.5rem;
+  border-top: 1px solid var(--border-subtle);
+  align-items: center;
+}
+
+/* Cheat button - discret */
+.btn-cheat {
+  background: transparent !important;
+  border-color: rgba(255,0,60,.15) !important;
+  color: rgba(255,0,60,.35) !important;
+  font-size: .6rem !important;
+  padding: .35rem .8rem !important;
+  transition: all .3s !important;
+}
+.btn-cheat:hover {
+  color: var(--neon-magenta) !important;
+  border-color: var(--neon-magenta) !important;
+  box-shadow: var(--glow-magenta) !important;
+}
+
+/* Réputation */
+.hud-value.rep { color: #c084fc; text-shadow: 0 0 8px rgba(192,132,252,.5), 0 0 20px rgba(192,132,252,.25); }
+.rep-bar-track { height: 2px; background: rgba(192,132,252,.15); border-radius: 2px; overflow: hidden; margin-top: .3rem; }
+.rep-bar-fill  { height: 100%; background: linear-gradient(90deg, #c084fc, rgba(192,132,252,.4)); border-radius: 2px; transition: width .8s cubic-bezier(.16,1,.3,1); }
+
+/* Wear row on car cards */
+.car-wear-row { display:flex; align-items:center; gap:1.25rem; margin-top:.6rem; padding-top:.6rem; border-top:1px solid var(--border-subtle); flex-wrap:wrap; }
+.car-wear-item { display:flex; align-items:center; gap:.35rem; font-family:var(--font-mono); font-size:.62rem; }
+.wear-dot { font-size:.55rem; }
+.wd-cyan{color:var(--neon-cyan)} .wd-gold{color:var(--neon-gold)} .wd-mag{color:var(--neon-magenta)}
+.wear-lbl { color: var(--text-muted); text-transform: uppercase; letter-spacing: .12em; }
+.wear-pct { font-weight: 500; }
+.wp-cyan{color:var(--neon-cyan)} .wp-gold{color:var(--neon-gold)} .wp-mag{color:var(--neon-magenta);text-shadow:var(--glow-magenta)}
+.warn-badge { font-family:var(--font-mono); font-size:.55rem; color:var(--neon-magenta); border:1px solid rgba(255,0,60,.3); padding:.15rem .5rem; text-transform:uppercase; letter-spacing:.1em; animation:flicker 2s ease-in-out infinite; margin-left:auto; }

@@ -1,5 +1,362 @@
-<h2 class="mb-3">{{ parking?.name }} </h2>
+<div class="container mt-5" *ngIf="!loading; else loadingTpl">
 
-<div class="container mt-4" *ngFor="let racers of parking?.racers">
+  <!-- ══ LOBBY ════════════════════════════════════════════ -->
+  <div *ngIf="phase === 'lobby'">
+    <div class="location-title">{{ parkingView?.name }}</div>
+    <div class="location-meta">{{ parkingView?.racers?.length || 0 }} pilotes · Réputation : {{ parkingView?.userReputation || 0 }} pts</div>
+
+    <!-- Gang -->
+    <div *ngIf="gangMembers.length > 0" class="gang-section">
+      <div class="gang-header">
+        <div class="gang-name-badge">{{ gangName }}</div>
+        <div class="gang-progress">
+          <div class="gang-pips">
+            <div class="gang-pip" *ngFor="let m of gangMembers" [class.beaten]="m.defeated"></div>
+          </div>
+          <span class="gang-count">{{ gangDefeatedCount }} / {{ gangMembers.length }} membres battus</span>
+        </div>
+      </div>
+      <div class="racer-entry gang-member" *ngFor="let racer of gangMembers; let i = index" [class.defeated]="racer.defeated">
+        <div class="racer-rank">{{ i + 1 | number:'2.0-0' }}</div>
+        <div class="racer-prefix">{{ racer.prefix }}</div>
+        <div style="flex:1">
+          <div class="racer-name">{{ racer.displayName }}</div>
+          <div class="racer-car-info">{{ racer.carName }} <span class="car-power">{{ racer.carPower }} CH · {{ racer.carAspiration }}</span></div>
+        </div>
+        <div class="racer-badge" [attr.data-tier]="carRatingLabel(racer.carPower)">{{ carRatingLabel(racer.carPower) }}</div>
+        <div *ngIf="racer.defeated" class="defeated-stamp">✓ BATTU</div>
+        <button *ngIf="!racer.defeated" class="btn btn-m btn-challenge" (click)="openCarSelect(racer)">DÉFIER</button>
+      </div>
+      <div *ngIf="boss" class="boss-row" [class.locked]="!allGangDefeated">
+        <div class="boss-lock-msg" *ngIf="!allGangDefeated">🔒 Bat tous les membres du gang pour affronter le boss</div>
+        <div class="racer-entry boss-entry" *ngIf="allGangDefeated" [class.defeated]="boss!.defeated">
+          <div class="racer-rank">👑</div>
+          <div class="racer-prefix boss-prefix">[BOSS]</div>
+          <div style="flex:1">
+            <div class="racer-name boss-name">{{ boss!.displayName }}</div>
+            <div class="racer-car-info">{{ boss!.carName }} <span class="car-power">{{ boss!.carPower }} CH</span></div>
+          </div>
+          <div class="racer-badge" [attr.data-tier]="carRatingLabel(boss!.carPower)">{{ carRatingLabel(boss!.carPower) }}</div>
+          <div *ngIf="boss!.defeated" class="defeated-stamp gold-stamp">✓ BOSS BATTU</div>
+          <button *ngIf="!boss!.defeated" class="btn btn-boss-challenge" (click)="openCarSelect(boss!)">▸ AFFRONTER LE BOSS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wanderers -->
+    <div *ngIf="specialRacers.length > 0" class="section-divider wanderer-divider">
+      ⭐ Wanderers
+      <span class="wanderer-rep-info">Rep actuelle : {{ parkingView?.userReputation || 0 }} pts</span>
+    </div>
+    <div *ngFor="let racer of specialRacers" class="racer-entry wanderer-entry">
+      <div class="wanderer-icon">?</div>
+      <div class="racer-prefix wanderer-prefix">{{ racer.prefix }}</div>
+      <div style="flex:1">
+        <div class="racer-name wanderer-name">{{ racer.displayName }}</div>
+        <div class="racer-car-info">{{ racer.carName }} <span class="car-power">{{ racer.carPower }} CH · {{ racer.carAspiration }}</span></div>
+        <div class="wanderer-reward">
+          <span class="reward-icon">🏆</span>
+          Victoire → voiture spéciale débloquée chez Legend Motorsport
+        </div>
+        <div class="rep-required">Réputation requise : <span class="rep-val">{{ racer.reputationRequired }} pts</span></div>
+      </div>
+      <div class="racer-badge" [attr.data-tier]="carRatingLabel(racer.carPower)">{{ carRatingLabel(racer.carPower) }}</div>
+      <button class="btn btn-wanderer-challenge" (click)="openCarSelect(racer)">▸ AFFRONTER</button>
+    </div>
+
+    <!-- Random -->
+    <div *ngIf="randomRacers.length > 0" class="section-divider">Pilotes présents</div>
+    <div class="racer-entry" *ngFor="let racer of randomRacers">
+      <div class="racer-rank">🏎</div>
+      <div style="flex:1">
+        <div class="racer-name">{{ racer.displayName }}</div>
+        <div class="racer-car-info">{{ racer.carName }} <span class="car-power">{{ racer.carPower }} CH · {{ racer.carAspiration }}</span></div>
+      </div>
+      <div class="racer-badge" [attr.data-tier]="carRatingLabel(racer.carPower)">{{ carRatingLabel(racer.carPower) }}</div>
+      <button class="btn btn-outline-primary btn-challenge" (click)="openCarSelect(racer)">DÉFIER</button>
+    </div>
+
+    <div class="nav-row"><button (click)="goBack()" class="btn btn-outline-primary">← Retour</button></div>
+  </div>
+
+  <!-- ══ CAR SELECT ════════════════════════════════════════ -->
+  <div *ngIf="phase === 'car-select'" class="car-select-screen">
+    <div class="car-select-title">Choisir ta voiture</div>
+    <div class="car-select-sub">VS <span class="opp-name">{{ selectedOpponent?.displayName }}</span></div>
+    <div class="car-select-grid">
+      <div class="car-select-card" *ngFor="let car of user?.garage?.cars"
+        [class.active]="selectedCar?.id === car.id" (click)="pickCar(car)">
+        <div class="car-select-tier" [attr.data-tier]="carRatingLabel(car.power)">{{ carRatingLabel(car.power) }}</div>
+        <div class="car-select-name">{{ car.name }}</div>
+        <div class="car-select-asp">{{ car.aspiration }} · {{ car.tireType }}</div>
+        <div class="wear-row">
+          <div class="wear-item">
+            <span class="wear-lbl">Pneus</span>
+            <div class="wear-bar-track"><div class="wear-bar" [class]="tireColor(car.tireWear || 100)" [style.width.%]="car.tireWear || 100"></div></div>
+            <span class="wear-val" [class]="'wear-' + tireColor(car.tireWear || 100)">{{ car.tireWear || 100 | number:'1.0-0' }}%</span>
+          </div>
+          <div class="wear-item">
+            <span class="wear-lbl">Huile</span>
+            <div class="wear-bar-track"><div class="wear-bar" [class]="oilColor(car.oilQuality || 100)" [style.width.%]="car.oilQuality || 100"></div></div>
+            <span class="wear-val" [class]="'wear-' + oilColor(car.oilQuality || 100)">{{ car.oilQuality || 100 | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+        <div class="car-mini-stats">
+          <div class="cms-row"><span class="cms-lbl">Puissance</span><div class="cms-track"><div class="cms-fill cyan" [style.width.%]="powerPercent(car.power)"></div></div><span class="cms-val">{{ car.power }}</span></div>
+          <div class="cms-row"><span class="cms-lbl">Légèreté</span><div class="cms-track"><div class="cms-fill mag" [style.width.%]="weightPercent(car.weight)"></div></div><span class="cms-val">{{ car.weight }}</span></div>
+          <div class="cms-row"><span class="cms-lbl">Grip</span><div class="cms-track"><div class="cms-fill gold" [style.width.%]="gripPercent(car.gripModifier)"></div></div><span class="cms-val">×{{ car.gripModifier }}</span></div>
+        </div>
+        <div class="car-select-check" *ngIf="selectedCar?.id === car.id">✓ SÉLECTIONNÉE</div>
+      </div>
+    </div>
+    <div class="car-select-actions">
+      <button (click)="backToLobby()" class="btn btn-outline-primary">Annuler</button>
+      <button (click)="confirmCarAndChallenge()" class="btn btn-m" [disabled]="!selectedCar">▸ Confirmer</button>
+    </div>
+  </div>
+
+  <!-- ══ CHALLENGE ════════════════════════════════════════ -->
+  <div *ngIf="phase === 'challenge'" class="challenge-screen">
+
+    <!-- VS header -->
+    <div class="challenge-vs">
+      <div class="vs-side vs-player">
+        <div class="vs-label">TOI</div>
+        <div class="vs-name">{{ user?.username }}</div>
+        <div class="vs-car">{{ selectedCar?.name || '—' }}</div>
+        <div class="vs-stats"><span>{{ selectedCar?.power || 0 }} CH</span><span>{{ selectedCar?.aspiration }}</span></div>
+        <div class="vs-wear">
+          <span class="vs-wear-dot" [class]="'dot-' + tireColor(selectedCar?.tireWear || 100)">●</span>
+          Pneus {{ selectedCar?.tireWear || 100 | number:'1.0-0' }}%
+          <span class="vs-wear-dot" [class]="'dot-' + oilColor(selectedCar?.oilQuality || 100)" style="margin-left:.5rem">●</span>
+          Huile {{ selectedCar?.oilQuality || 100 | number:'1.0-0' }}%
+        </div>
+        <div class="vs-balance">{{ user?.credits | number }} CR · Rep {{ user?.reputation }}</div>
+      </div>
+      <div class="vs-center"><div class="vs-text">VS</div></div>
+      <div class="vs-side vs-opponent">
+        <div class="vs-label">ADVERSAIRE</div>
+        <div class="vs-name">{{ selectedOpponent?.displayName }}</div>
+        <div class="vs-car">{{ selectedOpponent?.carName }}</div>
+        <div class="vs-stats"><span>{{ selectedOpponent?.carPower }} CH</span><span>{{ selectedOpponent?.carAspiration }}</span></div>
+        <div class="vs-tier" [attr.data-tier]="carRatingLabel(opponentPower)">Tier {{ carRatingLabel(opponentPower) }}</div>
+        <div class="boss-indicator" *ngIf="selectedOpponent?.isBoss">👑 BOSS</div>
+        <div class="special-indicator" *ngIf="selectedOpponent?.isSpecial">⭐ SPÉCIAL</div>
+      </div>
+    </div>
+
+    <!-- Course générée -->
+    <div class="config-section">
+      <div class="config-label">Circuit sélectionné au hasard</div>
+
+      <div *ngIf="loadingRace" class="race-generating">
+        <span class="blink">⟳ Génération du circuit...</span>
+      </div>
+
+      <div *ngIf="generatedRace && !loadingRace" class="generated-race-card">
+        <div class="generated-race-header">
+          <div class="generated-race-name">{{ generatedRace.raceName }}</div>
+          <button class="btn-reroll" (click)="rerollRace()" title="Relancer">↺ Rejouer</button>
+        </div>
+
+        <!-- Topologie -->
+        <div class="race-topo">
+          <div class="topo-bar">
+            <span class="topo-label">Ligne droite</span>
+            <div class="topo-track"><div class="topo-fill cyan" [style.width.%]="generatedRace.straightLine"></div></div>
+            <span class="topo-val">{{ generatedRace.straightLine }}%</span>
+          </div>
+          <div class="topo-bar">
+            <span class="topo-label">Virages</span>
+            <div class="topo-track"><div class="topo-fill mag" [style.width.%]="generatedRace.corner"></div></div>
+            <span class="topo-val">{{ generatedRace.corner }}%</span>
+          </div>
+        </div>
+
+        <!-- Difficulté + multiplicateur -->
+        <div class="diff-row">
+          <div class="diff-badge" [class]="'diff-' + difficultyColor(generatedRace.difficulty)">
+            <span class="diff-stars">{{ '★'.repeat(generatedRace.difficulty) }}</span>
+            <span class="diff-label">{{ generatedRace.difficultyLabel }}</span>
+            <span class="diff-num">{{ generatedRace.difficulty }}/10</span>
+          </div>
+          <div class="multiplier-badge">
+            ×{{ generatedRace.betMultiplier }} mise
+          </div>
+        </div>
+        <div class="diff-reason">{{ generatedRace.difficultyReason }}</div>
+
+        <!-- Option D : message de refus narratif -->
+        <div *ngIf="generatedRace.opponentRefusalMsg" class="refusal-msg">
+          💬 {{ generatedRace.opponentRefusalMsg }}
+        </div>
+
+        <!-- Plafond de mise -->
+        <div class="max-bet-info">
+          Mise max autorisée : <span class="max-bet-val">{{ generatedRace.maxBet | number }} CR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Type de mise -->
+    <div class="config-section">
+      <div class="config-label">Type de mise</div>
+      <div class="bet-type-toggle">
+        <button class="bet-type-btn" [class.active]="!betCar" (click)="betCar = false">💴 Crédits</button>
+        <button class="bet-type-btn danger" [class.active]="betCar" (click)="betCar = true">🚗 Voiture</button>
+      </div>
+
+      <div *ngIf="!betCar">
+        <div class="bet-row">
+          <div class="bet-input-wrap">
+            <input type="number" [(ngModel)]="bet" class="form-control bet-input" [min]="100" [max]="maxBet" placeholder="1000">
+            <span class="bet-currency">CR</span>
+          </div>
+          <div class="bet-presets">
+            <button class="btn-preset" (click)="bet = 500">500</button>
+            <button class="btn-preset" (click)="bet = 1000">1K</button>
+            <button class="btn-preset" (click)="bet = 5000">5K</button>
+            <button class="btn-preset" (click)="bet = 10000">10K</button>
+            <button class="btn-preset all-in" (click)="bet = maxBet" [title]="'Max : ' + (maxBet | number) + ' CR'">ALL IN ({{ maxBet | number }})</button>
+          </div>
+        </div>
+        <div class="bet-summary" *ngIf="generatedRace">
+          Gain potentiel : <span class="text-credits">+{{ expectedGain(bet, generatedRace.betMultiplier) | number }} CR</span>
+          · Risque : <span class="text-danger-neon">-{{ bet | number }} CR</span>
+          <span class="mult-badge">×{{ generatedRace.betMultiplier }}</span>
+        </div>
+      </div>
+
+      <div *ngIf="betCar" class="car-wager-info">
+        <div class="car-wager-warning">
+          ⚠ Tu mises ta voiture <strong>{{ selectedCar?.name }}</strong>.
+          Si tu perds, tu la perds <strong>définitivement</strong> — même si c'est ta seule voiture.
+          Si tu gagnes, tu remportes la voiture de l'adversaire.
+        </div>
+      </div>
+      <div *ngIf="betError" class="alert alert-danger" style="margin-top:.5rem">{{ betError }}</div>
+    </div>
+
+    <div class="challenge-actions">
+      <button (click)="backToLobby()" class="btn btn-outline-primary">Annuler</button>
+      <button (click)="confirmRace()" class="btn btn-m btn-start-race"
+        [class.btn-wager]="betCar"
+        [disabled]="!generatedRace || loadingRace">
+        {{ betCar ? '⚠ PARIER MA VOITURE' : '▸ LANCER LA COURSE' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ RACING ════════════════════════════════════════════ -->
+  <div *ngIf="phase === 'racing'" class="racing-screen">
+    <div class="racing-title">{{ generatedRace?.raceName }}</div>
+    <div class="racing-meta" *ngIf="generatedRace">
+      D{{ generatedRace.straightLine }}% · V{{ generatedRace.corner }}%
+      · <span [class]="'diff-inline diff-' + difficultyColor(generatedRace.difficulty)">{{ generatedRace.difficultyLabel }}</span>
+    </div>
+    <div class="circuit-wrap">
+      <div class="circuit-labels">
+        <div class="circuit-label player-label"><span class="dot blue-dot"></span>{{ user?.username }}</div>
+        <div class="circuit-label opp-label"><span class="dot red-dot"></span>{{ selectedOpponent?.displayName }}</div>
+      </div>
+      <div class="circuit-track">
+        <div class="track-bg">
+          <div class="track-straight" [style.width.%]="generatedRace?.straightLine || 80"></div>
+          <div class="track-corner"   [style.width.%]="generatedRace?.corner || 20"></div>
+        </div>
+        <div class="start-line"></div>
+        <div class="race-dot player-dot" [style.left.%]="playerPos" [class.finished]="playerPos >= 99"><div class="dot-glow blue-glow"></div></div>
+        <div class="race-dot opponent-dot" [style.left.%]="opponentPos" [class.finished]="opponentPos >= 99"><div class="dot-glow red-glow"></div></div>
+        <div class="finish-line"><div class="finish-flag">🏁</div></div>
+        <div class="finish-flash" *ngIf="raceFinished">
+          <span *ngIf="playerFinishedFirst" class="flash-win">VICTOIRE !</span>
+          <span *ngIf="!playerFinishedFirst" class="flash-loss">DÉFAITE</span>
+        </div>
+      </div>
+      <div class="circuit-positions">
+        <div class="pos-item"><span class="dot blue-dot sm"></span><span class="pos-name">{{ user?.username }}</span><span class="pos-pct">{{ playerPos | number:'1.0-0' }}%</span></div>
+        <div class="pos-item"><span class="dot red-dot sm"></span><span class="pos-name">{{ selectedOpponent?.displayName }}</span><span class="pos-pct">{{ opponentPos | number:'1.0-0' }}%</span></div>
+      </div>
+    </div>
+    <div class="racing-ticker">
+      <span *ngIf="!raceFinished">● Simulation en cours</span>
+      <span *ngIf="raceFinished && playerFinishedFirst">● Tu as franchi la ligne en premier !</span>
+      <span *ngIf="raceFinished && !playerFinishedFirst">● L'adversaire a franchi la ligne en premier.</span>
+    </div>
+  </div>
+
+  <!-- ══ RESULT ════════════════════════════════════════════ -->
+  <div *ngIf="phase === 'result' && result" class="result-screen">
+
+    <div class="result-banner" [class.win]="result.playerWon" [class.loss]="!result.playerWon">
+      <div class="result-icon">{{ result.playerWon ? '🏆' : '💀' }}</div>
+      <div class="result-headline">{{ result.playerWon ? 'VICTOIRE' : 'DÉFAITE' }}</div>
+      <div class="result-circuit">{{ result.raceName }} · D{{ result.straightLine }}% V{{ result.corner }}%</div>
+    </div>
+
+    <!-- Difficulté -->
+    <div class="diff-result-row">
+      <div class="diff-badge" [class]="'diff-' + difficultyColor(result.difficulty)">
+        {{ result.difficultyLabel }} {{ result.difficulty }}/10
+      </div>
+      <div class="multiplier-badge">×{{ result.betMultiplier }}</div>
+    </div>
+
+    <!-- Scores -->
+    <div class="score-comparison">
+      <div class="score-row">
+        <span class="score-label">{{ result.playerName }}</span>
+        <div class="score-track"><div class="score-fill player" [style.width.%]="playerBarWidth"></div></div>
+        <span class="score-val">{{ result.playerScore | number:'1.1-1' }}</span>
+      </div>
+      <div class="score-row">
+        <span class="score-label">{{ result.opponentName }}</span>
+        <div class="score-track"><div class="score-fill opponent" [style.width.%]="opponentBarWidth"></div></div>
+        <span class="score-val">{{ result.opponentScore | number:'1.1-1' }}</span>
+      </div>
+    </div>
+
+    <!-- Notifications -->
+    <div class="result-notifications">
+      <div class="notif rep" *ngIf="result.reputationEarned > 0">⬆ +{{ result.reputationEarned }} réputation · Total : {{ result.newReputation }} pts</div>
+      <div class="notif gang" *ngIf="result.gangMemberDefeated">✓ Membre du gang battu !</div>
+      <div class="notif boss" *ngIf="result.bossDefeated">👑 BOSS VAINCU !</div>
+      <div class="notif special" *ngIf="result.specialCarUnlocked">⭐ {{ result.specialCarName }} disponible chez Legend Motorsport !</div>
+      <div class="notif won-car" *ngIf="result.wonCarName">🚗 Tu as gagné la {{ result.wonCarName }} !</div>
+      <div class="notif lost-car" *ngIf="result.lostCar">💀 Tu as perdu ta voiture définitivement...</div>
+    </div>
+
+    <!-- Crédits -->
+    <div class="credits-result" [class.earned]="result.playerWon" [class.lost]="!result.playerWon" *ngIf="!result.carWager">
+      <div class="credits-change">
+        <span *ngIf="result.playerWon">+{{ result.actualGain || result.creditsEarned | number }} CR</span>
+        <span *ngIf="!result.playerWon">{{ result.creditsEarned | number }} CR</span>
+      </div>
+      <div class="credits-mult" *ngIf="result.playerWon && result.betMultiplier > 1">multiplicateur ×{{ result.betMultiplier }}</div>
+      <div class="credits-balance">Solde : {{ result.newBalance | number }} CR</div>
+    </div>
+
+    <!-- Usure -->
+    <div class="wear-result">
+      <div class="wear-result-item">
+        <span class="wear-lbl">Pneus</span>
+        <div class="wear-bar-track"><div class="wear-bar" [class]="tireColor(result.newTireWear)" [style.width.%]="result.newTireWear"></div></div>
+        <span class="wear-val" [class]="'wear-' + tireColor(result.newTireWear)">{{ result.newTireWear | number:'1.0-0' }}%</span>
+      </div>
+      <div class="wear-result-item">
+        <span class="wear-lbl">Huile</span>
+        <div class="wear-bar-track"><div class="wear-bar" [class]="oilColor(result.newOilQuality)" [style.width.%]="result.newOilQuality"></div></div>
+        <span class="wear-val" [class]="'wear-' + oilColor(result.newOilQuality)">{{ result.newOilQuality | number:'1.0-0' }}%</span>
+        <span class="oil-warning" *ngIf="result.newOilQuality < 25">⚠ Vidange urgente !</span>
+      </div>
+    </div>
+
+    <div class="result-actions">
+      <button (click)="rematch()" class="btn btn-outline-primary">Nouvelle course</button>
+      <button (click)="backToLobby()" class="btn btn-c">Autres adversaires</button>
+      <button (click)="goBack()" class="btn btn-outline-primary">← Garage</button>
+    </div>
+  </div>
 
 </div>
+<ng-template #loadingTpl><div class="loading-state">Connexion...</div></ng-template>

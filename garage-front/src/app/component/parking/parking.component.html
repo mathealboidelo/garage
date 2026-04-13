@@ -1,22 +1,44 @@
+<div class="container mt-5">
 
-<div class="container mt-4" *ngIf="parkings.length > 0">
-    <h2 class="mb-3">🏭 Concessionnaires disponibles</h2>
-    
-    <div class="row">
-        <div class="col-md-4 mb-3" *ngFor="let parking of parkings">
-            <div class="card border-info">
-                <div class="card-body text-center">
-                    <h4 class="card-title">{{ parking.name }}</h4>
+  <!-- Header -->
+  <div class="section-header">
+    <h1>🏁 Choisir un lieu de course</h1>
+  </div>
+  <p class="hud-label" style="margin-bottom:2rem; letter-spacing:.25em">
+    Sélectionne un parking — des adversaires t'attendent
+  </p>
 
-                    <button (click)="visitParking(parking.id)" class="btn btn-outline-primary">Visiter</button>
-                </div>
-            </div>
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state">Scan du territoire en cours...</div>
+
+  <!-- Empty -->
+  <div *ngIf="!loading && parkings.length === 0" class="alert alert-warning">
+    Aucun lieu de course disponible pour le moment.
+  </div>
+
+  <!-- Parkings grid -->
+  <div class="location-grid" *ngIf="!loading && parkings.length > 0">
+    <div
+      class="parking-card"
+      *ngFor="let parking of parkings"
+      (click)="visitParking(parking.id)">
+
+      <div class="live-dot"></div>
+
+      <div style="flex:1">
+        <div class="parking-name">{{ parking.name }}</div>
+        <div class="parking-location">
+          {{ parking.racers.length || 0 }} adversaire(s) · {{ parking.races.length || 0 }} circuit(s)
         </div>
+      </div>
+
+      <div class="parking-arrow">▸</div>
     </div>
-</div>
+  </div>
 
-<div class="container mt-4" *ngIf="parkings.length === 0">
-    <div class="alert alert-warning">Aucun concessionnaire trouvé dans la région.</div>
-</div>
+  <!-- Nav -->
+  <div class="nav-row">
+    <button (click)="goBack()" class="btn btn-outline-primary">← Retour au garage</button>
+  </div>
 
-<button (click)="stayGarage()" class="btn btn-outline-primary">Rester au garage</button>
+</div>

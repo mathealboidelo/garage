@@ -1,34 +1,25 @@
 package com.example.garage;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class DealershipController {
-	
-	@Autowired
-	private DealershipRepository dealershipRepository;
-	
-	@GetMapping("/api/dealership/{id}")
-	public ResponseEntity<Dealership> getDealershipById(@PathVariable Long id) {
-	    return dealershipRepository.findById(id)
-	            .map(dealer -> ResponseEntity.ok().body(dealer))
-	            .orElse(ResponseEntity.notFound().build());
-	}
-	
-	@GetMapping("/api/dealership")
-	public List<Dealership> getAllDealership() {
-		return dealershipRepository.findAll();
-	}
-	
-	
 
+    @Autowired private DealershipRepository dealershipRepository;
+
+    @GetMapping("/api/dealership")
+    public List<Dealership> getAllDealerships() {
+        return dealershipRepository.findAll();
+    }
+
+    @GetMapping("/api/dealership/{id}")
+    public ResponseEntity<Dealership> getById(@PathVariable Long id) {
+        return dealershipRepository.findById(id)
+                .map(d -> ResponseEntity.ok().body(d))
+                .orElse(ResponseEntity.notFound().build());
+    }
 }

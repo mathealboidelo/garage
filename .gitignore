@@ -8,6 +8,7 @@
 
 # Node
 /node_modules
+node_modules/
 npm-debug.log
 yarn-error.log
 
@@ -19,6 +20,7 @@ yarn-error.log
 *.launch
 .settings/
 *.sublime-workspace
+*.iml
 
 # Visual Studio Code
 .vscode/*
@@ -30,6 +32,7 @@ yarn-error.log
 
 # Miscellaneous
 /.angular/cache
+.angular/
 .sass-cache/
 /connect.lock
 /coverage
@@ -41,18 +44,28 @@ testem.log
 .DS_Store
 Thumbs.db
 
-# Angular
-node_modules/
+# Angular build
 dist/
-.angular/
 
-# Java
+# Java / Maven
 target/
 *.class
-.mvn/
 *.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
+mvnw
+mvnw.cmd
 
-# IDE
-.idea/
-.vscode/
-*.iml
+# SQLite — NE PAS committer la base de données
+*.db
+*.db-shm
+*.db-wal
+racing.db
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+application-local.properties
+application-secret.properties

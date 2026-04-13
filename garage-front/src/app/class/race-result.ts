@@ -1,0 +1,31 @@
+export class RaceResult {
+  playerWon!: boolean;
+  playerName!: string;
+  opponentName!: string;
+  raceName!: string;
+  straightLine!: number;
+  corner!: number;
+  playerScore!: number;
+  opponentScore!: number;
+  creditsEarned!: number;
+  actualGain!: number;
+  newBalance!: number;
+  resultMessage!: string;
+  reputationEarned!: number;
+  newReputation!: number;
+  newTireWear!: number;
+  newOilQuality!: number;
+  gangMemberDefeated!: boolean;
+  bossDefeated!: boolean;
+  parkingUnlocked!: boolean;
+  unlockedParkingName!: string;
+  carWager!: boolean;
+  wonCarName!: string;
+  lostCar!: boolean;
+  specialCarUnlocked!: boolean;
+  specialCarName!: string;
+  specialCarId!: number;
+  difficulty!: number;
+  difficultyLabel!: string;
+  betMultiplier!: number;
+}

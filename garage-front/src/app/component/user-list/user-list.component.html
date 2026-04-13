@@ -1,22 +1,20 @@
-<div class="card my-5">
-  <div class="card-body">
-    <table class="table table-bordered table-striped">
-      <thead class="thead-dark">
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Name</th>
-          <th scope="col">Credit</th>
-          <th scope="col">Level</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let user of users">
-          <td>{{ user.id }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.credits }}</td>
-          <td>{{ user.level }}</td>
-        </tr>
-      </tbody>
-    </table>
+<div class="container mt-5">
+  <div class="section-header">
+    <h2>Classement des pilotes</h2>
+  </div>
+
+  <div class="pilots-table">
+    <div class="table-header">
+      <span class="col-rank">#</span>
+      <span class="col-name">Pilote</span>
+      <span class="col-credits">Crédits</span>
+      <span class="col-level">Niveau</span>
+    </div>
+    <div class="table-row" *ngFor="let user of users; let i = index">
+      <span class="col-rank rank-num">{{ i + 1 }}</span>
+      <span class="col-name pilot-name">{{ user.username }}</span>
+      <span class="col-credits credits-val">{{ user.credits | number }} CR</span>
+      <span class="col-level level-val">{{ user.level | number:'2.0-0' }}</span>
+    </div>
   </div>
 </div>

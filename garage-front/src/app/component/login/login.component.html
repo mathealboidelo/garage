@@ -1,22 +1,46 @@
-<div class="container text-center mt-5">
-  <h1>🏁 Sélectionnez votre pilote</h1>
-  <div class="row mt-4">
-    <div class="col-md-4 mb-3" *ngFor="let user of users">
-      <div class="card profile-card" (click)="selectProfile(user)" style="cursor: pointer;">
-        <div class="card-body">
-          <h3>{{ user.username }}</h3>
-          <p class="text-muted">Niveau {{ user.level }}</p>
-          <button class="btn btn-primary">Charger</button>
-          <button class="btn btn-outline-danger" 
-                (click)="deleteProfile(user.id, $event)">
-          🗑️
-        </button>
+<div class="login-page">
+
+  <!-- Game logo -->
+  <div class="game-logo">
+    <h1 class="flicker">STREET RACER</h1>
+    <div class="subtitle">Tokyo Underground Racing Simulation</div>
+  </div>
+
+  <div class="section-label">Sélectionner un pilote</div>
+
+  <!-- Profile grid -->
+  <div class="profile-grid" *ngIf="users.length > 0">
+    <div
+      class="profile-card card"
+      *ngFor="let user of users"
+      (click)="selectProfile(user)">
+      <div class="card-body">
+        <div class="profile-username">{{ user.username }}</div>
+        <div class="profile-level">Niveau <span>{{ user.level | number:'2.0-0' }}</span></div>
+        <div class="profile-credits">{{ user.credits | number }} CR</div>
+        <div class="profile-actions">
+          <button class="btn btn-outline-primary" style="font-size:.65rem;padding:.35rem .9rem">
+            Charger
+          </button>
+          <button
+            class="btn btn-outline-danger"
+            style="font-size:.65rem;padding:.35rem .75rem"
+            (click)="deleteProfile(user.id, $event)">
+            🗑
+          </button>
         </div>
       </div>
     </div>
-    
-    <div class="col-md-12 mt-4">
-        <a routerLink="/adduser" class="btn btn-success">Créer un nouveau pilote</a>
-    </div>
   </div>
+
+  <!-- Empty state -->
+  <div *ngIf="users.length === 0" class="empty-state">
+    Aucun pilote enregistré — crée ton premier profil
+  </div>
+
+  <!-- New pilot CTA -->
+  <div class="new-pilot-cta">
+    <a routerLink="/adduser" class="btn btn-success">+ Nouveau pilote</a>
+  </div>
+
 </div>

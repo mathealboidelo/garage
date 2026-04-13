@@ -1,128 +1,73 @@
 package com.example.garage;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Car") // "user" est souvent un mot réservé en SQL, on utilise "users"
-@Data // Génère les getters/setters automatiquement avec Lombok
+@Table(name = "Car")
 public class Car {
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String name;
-    private int power;           // Puissance en CV
-    private double gripModifier; // Ex: 1.2 pour +20% d'adhérence
-    private int weight;          // Poids en kg
-    private long price;
-    
+    private int    power;           // CH
+    private double gripModifier;
+    private int    weight;          // kg
+    private long   price;
+
     @Enumerated(EnumType.STRING)
     private AspirationType aspiration;
-    
-    private String tireType;     // Ex: "Slick", "Sport", "Rain"
+
+    private String tireType;
+
+    // ── Wear & Maintenance ────────────────────────────────
+    /** Usure des pneus : 100 = neuf, 0 = complètement usé */
+    private double tireWear    = 100.0;
+
+    /** Qualité de l'huile : 100 = neuf, 0 = à vider de toute urgence */
+    private double oilQuality  = 100.0;
+
+    /** Nombre de courses effectuées avec cette voiture */
+    private int racesCount     = 0;
 
     @ManyToOne
     @JoinColumn(name = "garage_id")
     @JsonIgnore
     private Garage garage;
-    
+
     @ManyToOne
     @JoinColumn(name = "dealership_id")
     @JsonIgnore
     private Dealership dealership;
 
-	public Dealership getDealership() {
-		return dealership;
-	}
-
-	public void setDealership(Dealership dealership) {
-		this.dealership = dealership;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public int getPower() {
-		return power;
-	}
-
-	public void setPower(int power) {
-		this.power = power;
-	}
-
-	public double getGripModifier() {
-		return gripModifier;
-	}
-
-	public void setGripModifier(double gripModifier) {
-		this.gripModifier = gripModifier;
-	}
-
-	public int getWeight() {
-		return weight;
-	}
-
-	public void setWeight(int weight) {
-		this.weight = weight;
-	}
-
-	public AspirationType getAspiration() {
-		return aspiration;
-	}
-
-	public void setAspiration(AspirationType aspiration) {
-		this.aspiration = aspiration;
-	}
-
-	public String getTireType() {
-		return tireType;
-	}
-
-	public void setTireType(String tireType) {
-		this.tireType = tireType;
-	}
-
-	public Garage getGarage() {
-		return garage;
-	}
-
-	public void setGarage(Garage garage) {
-		this.garage = garage;
-	}
-
-	public long getPrice() {
-		return price;
-	}
-
-	public void setPrice(long price) {
-		this.price = price;
-	}
-	
-	
-    
-    
+    // ── Getters / Setters ──────────────────────────────────
+    public Long   getId()                    { return id; }
+    public void   setId(Long id)             { this.id = id; }
+    public String getName()                  { return name; }
+    public void   setName(String n)          { this.name = n; }
+    public int    getPower()                 { return power; }
+    public void   setPower(int p)            { this.power = p; }
+    public double getGripModifier()          { return gripModifier; }
+    public void   setGripModifier(double g)  { this.gripModifier = g; }
+    public int    getWeight()                { return weight; }
+    public void   setWeight(int w)           { this.weight = w; }
+    public long   getPrice()                 { return price; }
+    public void   setPrice(long p)           { this.price = p; }
+    public AspirationType getAspiration()    { return aspiration; }
+    public void   setAspiration(AspirationType a) { this.aspiration = a; }
+    public String getTireType()              { return tireType; }
+    public void   setTireType(String t)      { this.tireType = t; }
+    public double getTireWear()              { return tireWear; }
+    public void   setTireWear(double v)      { this.tireWear = v; }
+    public double getOilQuality()            { return oilQuality; }
+    public void   setOilQuality(double v)    { this.oilQuality = v; }
+    public int    getRacesCount()            { return racesCount; }
+    public void   setRacesCount(int v)       { this.racesCount = v; }
+    public Garage getDealership_garage()     { return garage; }
+    public Garage getGarage()               { return garage; }
+    public void   setGarage(Garage g)        { this.garage = g; }
+    public Dealership getDealership()        { return dealership; }
+    public void   setDealership(Dealership d){ this.dealership = d; }
 }

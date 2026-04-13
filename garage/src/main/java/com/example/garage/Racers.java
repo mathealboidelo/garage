@@ -1,52 +1,55 @@
 package com.example.garage;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.Data;
+import jakarta.persistence.*;
 
 @Entity
-@Table(name = "racers") // "user" est souvent un mot réservé en SQL, on utilise "users"
-@Data // Génère les getters/setters automatiquement avec Lombok
+@Table(name = "racers")
 public class Racers {
-	
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-	
-	private String name;
-	
-	@OneToOne // ou @ManyToOne si un pilote peut changer de voiture
+    private long id;
+
+    private String name;
+
+    // ManyToOne : plusieurs adversaires peuvent partager le même modèle de voiture
+    @ManyToOne
     @JoinColumn(name = "car_id")
-	private Car car;
+    private Car car;
 
-	public long getId() {
-		return id;
-	}
+    private String  prefix              = "";
+    private boolean gangMember          = false;
+    private boolean boss                = false;
+    private String  gangName            = "";
+    private boolean special             = false;
+    private int     reputationRequired  = 0;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    @ManyToOne
+    @JoinColumn(name = "special_car_id")
+    private Car specialCarForSale = null;
 
-	public String getName() {
-		return name;
-	}
+    public long   getId()                        { return id; }
+    public void   setId(long id)                 { this.id = id; }
+    public String getName()                      { return name; }
+    public void   setName(String n)              { this.name = n; }
+    public Car    getCar()                        { return car; }
+    public void   setCar(Car c)                  { this.car = c; }
+    public String getPrefix()                    { return prefix; }
+    public void   setPrefix(String p)            { this.prefix = p; }
+    public boolean isGangMember()                { return gangMember; }
+    public void   setGangMember(boolean b)       { this.gangMember = b; }
+    public boolean isBoss()                      { return boss; }
+    public void   setBoss(boolean b)             { this.boss = b; }
+    public String getGangName()                  { return gangName; }
+    public void   setGangName(String g)          { this.gangName = g; }
+    public boolean isSpecial()                   { return special; }
+    public void   setSpecial(boolean b)          { this.special = b; }
+    public int    getReputationRequired()        { return reputationRequired; }
+    public void   setReputationRequired(int r)   { this.reputationRequired = r; }
+    public Car    getSpecialCarForSale()         { return specialCarForSale; }
+    public void   setSpecialCarForSale(Car c)    { this.specialCarForSale = c; }
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public Car getCar() {
-		return car;
-	}
-
-	public void setCar(Car car) {
-		this.car = car;
-	}
-	
-	
+    public String getDisplayName() {
+        return (prefix != null && !prefix.isEmpty()) ? prefix + " " + name : name;
+    }
 }

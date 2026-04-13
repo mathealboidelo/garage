@@ -1,18 +1,93 @@
-<h2 class="mb-3">{{ dealership?.name }} </h2>
+<div class="container mt-5">
 
-<button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>
- 
-<div class="container mt-4" *ngFor="let cars of dealership?.cars">
-    <div class="row">
-        <h3 class="card-title">{{ cars.name }}</h3>
-        <h4 class="card-title">{{ cars.power }} Ch</h4>
-        <h4 class="card-title">{{ cars.price }} €</h4>
-        <h4 class="card-title">{{ cars.weight }} Kg</h4>
-        <h4 class="card-title">Aspiration Type : {{ cars.aspiration }}</h4>
-        <h4 class="card-title">Default Tires : {{ cars.tireType }}</h4>
-        <h4 class="card-title">Grip Modifier : {{ cars.gripModifier }}</h4>
-        <button (click)="buyCar(cars)" class="btn btn-danger">Acheter</button>
+  <!-- ── Bandeau budget joueur ─────────────────────────── -->
+  <div class="budget-bar">
+    <div class="budget-left">
+      <span class="budget-label">Ton budget</span>
+      <span class="budget-amount">{{ playerCredits | number }} CR</span>
     </div>
-</div>
+    <div class="budget-feedback" *ngIf="buyFeedback">✓ {{ buyFeedback }}</div>
+  </div>
 
-<button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>
+  <!-- ── Titre concessionnaire ──────────────────────────── -->
+  <div class="dealer-title">{{ dealership?.name }}</div>
+  <div class="dealer-subtitle">{{ dealership?.cars?.length || 0 }} voiture(s) en stock</div>
+
+  <!-- ── Grille de voitures ─────────────────────────────── -->
+  <div class="cars-grid" *ngIf="(dealership?.cars?.length ?? 0) > 0">
+    <div class="car-for-sale" *ngFor="let car of dealership?.cars"
+      [class.affordable]="canAfford(car)"
+      [class.too-expensive]="!canAfford(car)">
+
+      <!-- Prix + Tier -->
+      <div class="car-header">
+        <div class="car-tier-badge" [attr.data-tier]="tierLabel(car.power)">
+          {{ tierLabel(car.power) }}
+        </div>
+        <div class="car-price" [class.affordable-price]="canAfford(car)" [class.expensive-price]="!canAfford(car)">
+          {{ car.price | number }} CR
+        </div>
+      </div>
+
+      <div class="car-for-sale-name">{{ car.name }}</div>
+
+      <!-- Specs -->
+      <div class="spec-table">
+        <div class="spec-row">
+          <span class="spec-key">Puissance</span>
+          <span class="spec-val highlight">{{ car.power }} CH</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Poids</span>
+          <span class="spec-val">{{ car.weight }} KG</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Aspiration</span>
+          <span class="spec-val">{{ car.aspiration }}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Pneus</span>
+          <span class="spec-val">{{ car.tireType }}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Grip</span>
+          <span class="spec-val">×{{ car.gripModifier }}</span>
+        </div>
+        <div class="spec-row">
+          <span class="spec-key">Manque</span>
+          <span class="spec-val expensive-price" *ngIf="!canAfford(car)">
+            {{ car.price - playerCredits | number }} CR
+          </span>
+          <span class="spec-val affordable-price" *ngIf="canAfford(car)">
+            {{ playerCredits - car.price | number }} CR restants
+          </span>
+        </div>
+      </div>
+
+      <!-- Bouton achat -->
+      <button
+        class="btn-buy"
+        [class.btn-buy-disabled]="!canAfford(car)"
+        [disabled]="!canAfford(car) || buyingCarId === car.id"
+        (click)="buyCar(car)">
+        <span *ngIf="buyingCarId !== car.id && canAfford(car)">
+          ▸ Acheter — {{ car.price | number }} CR
+        </span>
+        <span *ngIf="buyingCarId === car.id">Achat en cours...</span>
+        <span *ngIf="buyingCarId !== car.id && !canAfford(car)">
+          Budget insuffisant
+        </span>
+      </button>
+
+    </div>
+  </div>
+
+  <div *ngIf="(dealership?.cars?.length ?? 0) === 0" class="alert alert-warning">
+    Ce concessionnaire n'a plus de voitures en stock.
+  </div>
+
+  <div class="nav-row">
+    <button (click)="goToDealership()" class="btn btn-outline-primary">← Concessionnaires</button>
+  </div>
+
+</div>

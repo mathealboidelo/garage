@@ -1,0 +1,166 @@
+<div class="container mt-5" *ngIf="!loading; else loadingTpl">
+
+  <div class="shop-header">
+    <div>
+      <div class="shop-eyebrow">// GARAGE</div>
+      <h1 class="shop-title">Auto Shop</h1>
+    </div>
+    <div class="shop-balance">
+      <span class="balance-label">Budget</span>
+      <span class="balance-amount">{{ user?.credits | number }} CR</span>
+    </div>
+  </div>
+
+  <!-- Feedback toast -->
+  <div *ngIf="feedback" class="shop-feedback" [class.ok]="feedbackType === 'ok'" [class.err]="feedbackType === 'err'">
+    {{ feedback }}
+  </div>
+
+  <div *ngIf="!user?.garage?.cars?.length" class="no-car-state">
+    <div class="no-car-msg">Aucune voiture dans le garage.</div>
+  </div>
+
+  <div *ngIf="user?.garage?.cars?.length" class="shop-body">
+
+    <!-- Car selector -->
+    <div class="car-tabs" *ngIf="(user?.garage?.cars?.length ?? 0) > 1">
+      <button class="car-tab" *ngFor="let car of user?.garage?.cars"
+        [class.active]="selectedCar?.id === car.id" (click)="selectCar(car)">
+        {{ car.name }}
+      </button>
+    </div>
+
+    <!-- Car panel -->
+    <div class="car-panel" *ngIf="selectedCar">
+      <div class="car-panel-left">
+        <div class="car-panel-name">{{ selectedCar.name }}</div>
+        <div class="car-panel-meta">{{ selectedCar.aspiration }} · {{ selectedCar.tireType }}</div>
+        <div class="car-tier-badge" [attr.data-tier]="tierLabel(selectedCar.power)">
+          TIER {{ tierLabel(selectedCar.power) }}
+        </div>
+        <div class="race-count">{{ selectedCar.racesCount || 0 }} course(s) effectuées</div>
+      </div>
+
+      <!-- Stats mini -->
+      <div class="car-panel-stats">
+        <div class="stat-row">
+          <span class="stat-lbl">Puissance</span>
+          <div class="stat-track"><div class="stat-fill cyan" [style.width.%]="powerPercent(selectedCar.power)"></div></div>
+          <span class="stat-val cyan">{{ selectedCar.power }} CH</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Poids</span>
+          <div class="stat-track"><div class="stat-fill mag" [style.width.%]="weightPercent(selectedCar.weight)"></div></div>
+          <span class="stat-val mag">{{ selectedCar.weight }} KG</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-lbl">Grip</span>
+          <div class="stat-track"><div class="stat-fill gold" [style.width.%]="gripPercent(selectedCar.gripModifier)"></div></div>
+          <span class="stat-val gold">×{{ selectedCar.gripModifier }}</span>
+        </div>
+      </div>
+
+      <!-- Wear indicators -->
+      <div class="wear-panel">
+        <!-- Pneus -->
+        <div class="wear-card" [class.critical]="selectedCar.tireWear <= 30">
+          <div class="wear-card-header">
+            <span class="wear-icon">○</span>
+            <span class="wear-card-title">Pneus</span>
+            <span class="wear-status-tag" [class]="'tag-' + tireColor(selectedCar.tireWear)">
+              {{ wearLabel(selectedCar.tireWear) }}
+            </span>
+          </div>
+          <div class="wear-big-bar-track">
+            <div class="wear-big-bar" [class]="tireColor(selectedCar.tireWear)"
+              [style.width.%]="selectedCar.tireWear"></div>
+          </div>
+          <div class="wear-pct">{{ selectedCar.tireWear | number:'1.0-0' }}%</div>
+          <div class="wear-penalty" *ngIf="selectedCar.tireWear < 100">
+            Pénalité grip : -{{ ((1 - (0.80 + selectedCar.tireWear / 500)) * 100) | number:'1.0-0' }}%
+          </div>
+        </div>
+
+        <!-- Huile -->
+        <div class="wear-card" [class.critical]="selectedCar.oilQuality <= 25">
+          <div class="wear-card-header">
+            <span class="wear-icon">◈</span>
+            <span class="wear-card-title">Huile moteur</span>
+            <span class="wear-status-tag" [class]="'tag-' + oilColor(selectedCar.oilQuality)">
+              {{ oilLabel(selectedCar.oilQuality) }}
+            </span>
+          </div>
+          <div class="wear-big-bar-track">
+            <div class="wear-big-bar" [class]="oilColor(selectedCar.oilQuality)"
+              [style.width.%]="selectedCar.oilQuality"></div>
+          </div>
+          <div class="wear-pct">{{ selectedCar.oilQuality | number:'1.0-0' }}%</div>
+          <div class="wear-penalty" *ngIf="selectedCar.oilQuality < 100">
+            Pénalité puissance : -{{ ((1 - (0.85 + selectedCar.oilQuality / 670)) * 100) | number:'1.0-0' }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Service menu -->
+    <div class="service-label">Services disponibles</div>
+
+    <div class="service-grid" *ngIf="costs">
+
+      <!-- Changer les pneus -->
+      <div class="service-card" [class.cant-afford]="!canAffordTires()">
+        <div class="service-icon">○</div>
+        <div class="service-name">Changement de pneus</div>
+        <div class="service-desc">Remet les pneus à 100% — élimine la pénalité de grip</div>
+        <div class="service-footer">
+          <span class="service-cost" [class.cant]="!canAffordTires()">{{ costs.tireCost | number }} CR</span>
+          <button class="btn-service" [class.disabled]="!canAffordTires() || working !== null"
+            [disabled]="!canAffordTires() || working !== null"
+            (click)="changeTires()">
+            <span *ngIf="working !== 'tires'">▸ Changer</span>
+            <span *ngIf="working === 'tires'" class="working-txt">En cours...</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vidange -->
+      <div class="service-card" [class.cant-afford]="!canAffordOil()">
+        <div class="service-icon">◈</div>
+        <div class="service-name">Vidange d'huile</div>
+        <div class="service-desc">Remet l'huile à 100% — élimine la pénalité de puissance</div>
+        <div class="service-footer">
+          <span class="service-cost" [class.cant]="!canAffordOil()">{{ costs.oilCost | number }} CR</span>
+          <button class="btn-service" [class.disabled]="!canAffordOil() || working !== null"
+            [disabled]="!canAffordOil() || working !== null"
+            (click)="changeOil()">
+            <span *ngIf="working !== 'oil'">▸ Vidanger</span>
+            <span *ngIf="working === 'oil'" class="working-txt">En cours...</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Vendre -->
+      <div class="service-card sell-card" [class.cant-afford]="!canSell()">
+        <div class="service-icon">¥</div>
+        <div class="service-name">Vendre la voiture</div>
+        <div class="service-desc">Vente à 50% du prix d'achat. Irréversible.</div>
+        <div class="service-footer">
+          <span class="service-cost sell-value">+{{ costs.saleValue | number }} CR</span>
+          <button class="btn-service sell-btn" [class.disabled]="!canSell() || working !== null"
+            [disabled]="!canSell() || working !== null"
+            (click)="sellCar()">
+            <span *ngIf="working !== 'sell'">▸ Vendre</span>
+            <span *ngIf="working === 'sell'" class="working-txt">En cours...</span>
+          </button>
+        </div>
+        <div class="sell-warning" *ngIf="!canSell()">Tu ne peux pas vendre ta seule voiture</div>
+      </div>
+
+    </div>
+
+    <div class="nav-row">
+      <button (click)="goBack()" class="btn btn-outline-primary">← Tableau de bord</button>
+    </div>
+  </div>
+</div>
+<ng-template #loadingTpl><div class="loading-state">Chargement du garage...</div></ng-template>

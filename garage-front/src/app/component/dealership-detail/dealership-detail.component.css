@@ -1,0 +1,134 @@
+/* ── Dealership Detail ──────────────────────────────── */
+:host { display: block; padding: 2rem 0; }
+
+.dealer-title {
+  font-family: var(--font-hud);
+  font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 900;
+  color: var(--neon-cyan); text-shadow: var(--glow-cyan);
+  text-transform: uppercase; letter-spacing: .15em; margin-bottom: .3rem;
+}
+.dealer-subtitle {
+  font-family: var(--font-mono); font-size: .6rem;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .4em; margin-bottom: 2rem;
+}
+
+.cars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1px; background: var(--border-subtle);
+  border: 1px solid var(--border-subtle); margin-bottom: 1.5rem;
+}
+
+.car-for-sale {
+  background: var(--bg-card); padding: 1.5rem;
+  position: relative; transition: background .2s;
+}
+.car-for-sale:hover { background: var(--bg-card-hover); }
+.car-for-sale::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--neon-magenta); box-shadow: var(--glow-magenta);
+}
+
+.car-price {
+  position: absolute; top: 1rem; right: 1rem;
+  font-family: var(--font-mono); font-size: .85rem;
+  color: var(--neon-gold); text-shadow: var(--glow-gold);
+}
+.car-for-sale-name {
+  font-family: var(--font-hud); font-size: 1rem; font-weight: 700;
+  color: var(--text-primary); text-transform: uppercase;
+  letter-spacing: .1em; margin-bottom: 1rem; padding-right: 5rem;
+}
+
+.spec-table {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: .5rem 1rem; margin-bottom: 1.25rem;
+}
+.spec-row { display: flex; flex-direction: column; gap: .1rem; }
+.spec-key {
+  font-family: var(--font-mono); font-size: .56rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .18em;
+}
+.spec-val {
+  font-family: var(--font-mono); font-size: .85rem; color: var(--text-primary);
+}
+.spec-val.highlight { color: var(--neon-cyan); text-shadow: 0 0 6px rgba(0,240,255,.3); }
+
+.btn-buy {
+  width: 100%; background: transparent;
+  border: 1px solid var(--neon-magenta); color: var(--neon-magenta);
+  font-family: var(--font-hud); font-size: .7rem; font-weight: 700;
+  letter-spacing: .2em; text-transform: uppercase;
+  padding: .65rem; cursor: pointer; transition: all .15s;
+}
+.btn-buy:hover {
+  background: rgba(255,0,60,.1); box-shadow: var(--glow-magenta); color: #fff;
+}
+
+.nav-row { display: flex; gap: .75rem; }
+
+/* ── Budget bar ─────────────────────────────────────────── */
+.budget-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--neon-gold);
+  padding: .85rem 1.25rem;
+  margin-bottom: 1.75rem;
+}
+.budget-left { display: flex; align-items: baseline; gap: .75rem; }
+.budget-label {
+  font-family: var(--font-mono); font-size: .58rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .25em;
+}
+.budget-amount {
+  font-family: var(--font-mono); font-size: 1.2rem;
+  color: var(--neon-gold); text-shadow: var(--glow-gold);
+}
+.budget-feedback {
+  font-family: var(--font-mono); font-size: .65rem;
+  color: var(--neon-cyan); text-shadow: var(--glow-cyan);
+  text-transform: uppercase; letter-spacing: .15em;
+  animation: fadeIn .3s ease;
+}
+@keyframes fadeIn { from{opacity:0;transform:translateX(8px)} to{opacity:1;transform:translateX(0)} }
+
+/* ── Car header (tier + price) ──────────────────────────── */
+.car-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .75rem;
+}
+.car-tier-badge {
+  font-family: var(--font-hud); font-size: .7rem; font-weight: 900;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid; border-radius: 2px;
+}
+.car-tier-badge[data-tier="S"] { color:#ff003c;border-color:#ff003c;text-shadow:var(--glow-magenta); }
+.car-tier-badge[data-tier="A"] { color:#ff8c00;border-color:#ff8c00; }
+.car-tier-badge[data-tier="B"] { color:#ffd700;border-color:#ffd700;text-shadow:var(--glow-gold); }
+.car-tier-badge[data-tier="C"] { color:#00f0ff;border-color:#00f0ff;text-shadow:var(--glow-cyan); }
+.car-tier-badge[data-tier="D"] { color:var(--text-muted);border-color:var(--text-muted); }
+
+.car-price { font-family:var(--font-mono); font-size:.9rem; }
+.affordable-price { color:var(--neon-gold); text-shadow:var(--glow-gold); }
+.expensive-price  { color:var(--neon-magenta); text-shadow:var(--glow-magenta); }
+
+/* ── Affordable vs too-expensive cards ──────────────────── */
+.car-for-sale.too-expensive { opacity: .6; }
+.car-for-sale.too-expensive::before { background: var(--text-muted); box-shadow: none; }
+
+/* ── Buy button states ──────────────────────────────────── */
+.btn-buy-disabled {
+  border-color: var(--text-muted) !important;
+  color: var(--text-muted) !important;
+  cursor: not-allowed !important;
+  opacity: .5;
+}
+.btn-buy-disabled:hover {
+  background: transparent !important;
+  box-shadow: none !important;
+}

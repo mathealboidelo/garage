@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { User } from 'src/app/class/user';
 import { UserService } from 'src/app/services/user.service';
 
@@ -9,24 +9,18 @@ import { UserService } from 'src/app/services/user.service';
   styleUrls: ['./user-form.component.css']
 })
 export class UserFormComponent {
-  user: User;
+
+  user: User = new User();
 
   constructor(
-    private route: ActivatedRoute, 
-      private router: Router, 
-        private userService: UserService) {
-    this.user = new User();
-  }
+    private router: Router,
+    private userService: UserService
+  ) {}
 
   onSubmit() {
-    this.userService.save(this.user).subscribe(result => this.gotoUserList());
-  }
-
-  gotoUserList() {
-    this.router.navigate(['/user']);
-  }
-
-  goToMainMenu(){
-    this.router.navigate(['']);
+    this.userService.save(this.user).subscribe({
+      next: () => this.router.navigate(['/']),
+      error: err => alert('Erreur : ' + (err.error || 'Nom déjà pris ?'))
+    });
   }
 }

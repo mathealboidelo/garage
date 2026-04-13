@@ -3,20 +3,47 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Parking } from '../class/parking';
 
-@Injectable({
-  providedIn: 'root'
-})
+export interface RacerView {
+  id: number;
+  displayName: string;
+  carName: string;
+  carPower: number;
+  carAspiration: string;
+  carTireType: string;
+  carGripModifier: number;
+  defeated: boolean;
+  isGang: boolean;
+  isBoss: boolean;
+  isSpecial: boolean;
+  reputationRequired: number;
+  gangName: string;
+  prefix: string;
+  specialCarId?: number;
+}
+
+export interface ParkingView {
+  id: number;
+  name: string;
+  races: any[];
+  racers: RacerView[];
+  userReputation: number;
+}
+
+@Injectable({ providedIn: 'root' })
 export class ParkingService {
+  private base = 'http://localhost:8080/api';
 
-  private parkingUrl = 'http://localhost:8080/api/dealership';
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
-
-  public findAll() : Observable<Parking[]>{
-    return this.http.get<Parking[]>(this.parkingUrl)
+  findAll(): Observable<Parking[]> {
+    return this.http.get<Parking[]>(`${this.base}/parkings`);
   }
 
-  public findById(id: number) : Observable<Parking>{
-      return this.http.get<Parking>(`${this.parkingUrl}/${id}`)
-    }
+  findById(id: number): Observable<Parking> {
+    return this.http.get<Parking>(`${this.base}/parkings/${id}`);
+  }
+
+  getParkingForUser(parkingId: number, userId: number): Observable<ParkingView> {
+    return this.http.get<ParkingView>(`${this.base}/parkings/${parkingId}/user/${userId}`);
+  }
 }

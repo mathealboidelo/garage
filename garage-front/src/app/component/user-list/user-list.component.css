@@ -1,0 +1,34 @@
+/* ── User List / Classement ──────────────────────────── */
+:host { display: block; padding: 2rem 0; }
+
+.pilots-table { border: 1px solid var(--border-subtle); }
+
+.table-header {
+  display: grid;
+  grid-template-columns: 40px 1fr 160px 80px;
+  gap: 1rem;
+  padding: .6rem 1.25rem;
+  background: rgba(0,240,255,.04);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.table-header span {
+  font-family: var(--font-mono); font-size: .58rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .25em;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 40px 1fr 160px 80px;
+  gap: 1rem;
+  padding: .9rem 1.25rem;
+  border-bottom: 1px solid rgba(0,240,255,.04);
+  align-items: center;
+  transition: background .2s;
+}
+.table-row:hover { background: var(--bg-card); }
+.table-row:last-child { border-bottom: none; }
+
+.rank-num   { font-family: var(--font-mono); font-size: .8rem; color: var(--text-muted); }
+.pilot-name { font-family: var(--font-hud); font-size: .85rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; }
+.credits-val { font-family: var(--font-mono); font-size: .8rem; color: var(--neon-gold); text-shadow: var(--glow-gold); }
+.level-val   { font-family: var(--font-mono); font-size: .8rem; color: var(--neon-cyan); text-shadow: var(--glow-cyan); }

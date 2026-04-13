@@ -1,39 +1,102 @@
-<div class="container mt-5" *ngIf="user">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-      <h1>🏎️ Tableau de Bord</h1>
-      <button (click)="logout()" class="btn btn-danger">Changer de profil</button>
+<div class="container mt-5" *ngIf="!loading; else loadingTpl">
+
+  <div class="dashboard-header" data-label="// COCKPIT">
+    <div>
+      <h1>Tableau de Bord</h1>
+      <div class="pilot-name">Pilote : <span>{{ user?.username }}</span></div>
+    </div>
+    <button (click)="logout()" class="btn btn-outline-danger">⏻ Déco</button>
   </div>
 
-  <div class="card bg-dark text-white">
-    <div class="card-body">
-      <h2>Pilote : {{ user.username }}</h2>
-      <div class="row mt-3">
-          <div class="col-md-6">
-              <h3>Argent</h3>
-              <p class="display-4 text-warning">{{ user.credits | number }} CR</p>
-          </div>
-          <div class="col-md-6">
-              <h3>Niveau</h3>
-              <p class="display-4">{{ user.level }}</p>
-          </div>
-          <div class="col-md-6">
-              <h3>Voitures </h3>
-              <div class="display-4" *ngFor="let cars of user.garage.cars">
-                <h4 class="card-title">{{ cars.name }}</h4>
-                <p class="card-title">{{ cars.power }} Ch</p>
-                <p class="card-title">{{ cars.weight }} Kg</p>
-                <p class="card-title">Aspiration Type : {{ cars.aspiration }}</p>
-                <p class="card-title">Default Tires : {{ cars.tireType }}</p>
-                <p class="card-title">Grip Modifier : {{ cars.gripModifier }}</p>
-              </div>
-          </div>
-      </div>
+  <!-- Stats HUD : crédits, niveau, réputation, victoires -->
+  <div class="stats-row">
+    <div class="stat-cell">
+      <div class="hud-label">Crédits</div>
+      <div class="hud-value gold">{{ user?.credits | number }} <span style="font-size:.5em;opacity:.6">CR</span></div>
+    </div>
+    <div class="stat-cell">
+      <div class="hud-label">Niveau</div>
+      <div class="hud-value level">{{ user?.level | number:'2.0-0' }}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="hud-label">Réputation</div>
+      <div class="hud-value rep">{{ user?.reputation || 0 }} <span style="font-size:.45em;opacity:.6">PTS</span></div>
+      <div class="rep-bar-track"><div class="rep-bar-fill" [style.width.%]="repPercent(user?.reputation ?? 0)"></div></div>
+    </div>
+    <div class="stat-cell">
+      <div class="hud-label">Victoires</div>
+      <div class="hud-value level">{{ user?.wins || 0 }}</div>
+    </div>
+    <div class="stat-cell">
+      <div class="hud-label">Voitures</div>
+      <div class="hud-value level">{{ user?.garage?.cars?.length || 0 }}</div>
     </div>
   </div>
+
+  <!-- Garage -->
+  <div class="garage-section">
+    <div class="garage-title">Garage</div>
+
+    <div *ngIf="!hasGarage" class="alert alert-warning">
+      Ton garage est vide — achète ta première voiture chez un concessionnaire.
+    </div>
+
+    <div class="car-entry" *ngFor="let car of user?.garage?.cars">
+
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem">
+        <div class="car-name">{{ car.name }}</div>
+        <div class="racer-badge" [attr.data-tier]="tierLabel(car.power)">{{ tierLabel(car.power) }}</div>
+      </div>
+
+      <div class="car-specs">
+        <div class="car-spec"><span class="car-spec-label">Puissance</span><span class="car-spec-value">{{ car.power }} CH</span></div>
+        <div class="car-spec"><span class="car-spec-label">Poids</span><span class="car-spec-value">{{ car.weight }} KG</span></div>
+        <div class="car-spec"><span class="car-spec-label">Aspiration</span><span class="car-spec-value">{{ car.aspiration }}</span></div>
+        <div class="car-spec"><span class="car-spec-label">Pneus</span><span class="car-spec-value">{{ car.tireType }}</span></div>
+        <div class="car-spec"><span class="car-spec-label">Grip</span><span class="car-spec-value">×{{ car.gripModifier }}</span></div>
+        <div class="car-spec"><span class="car-spec-label">Courses</span><span class="car-spec-value">{{ car.racesCount || 0 }}</span></div>
+      </div>
+
+      <!-- Stat bars -->
+      <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.3rem">
+        <div class="stat-bar">
+          <div class="stat-bar-label"><span>Puissance</span><span>{{ car.power }} CH</span></div>
+          <div class="stat-bar-track"><div class="stat-bar-fill" [style.width.%]="powerPercent(car.power)"></div></div>
+        </div>
+        <div class="stat-bar">
+          <div class="stat-bar-label"><span>Légèreté</span><span>{{ car.weight }} KG</span></div>
+          <div class="stat-bar-track"><div class="stat-bar-fill danger" [style.width.%]="weightPercent(car.weight)"></div></div>
+        </div>
+      </div>
+
+      <!-- Wear indicators inline -->
+      <div class="car-wear-row">
+        <div class="car-wear-item">
+          <span class="wear-dot" [class]="'wd-' + tireColor(car.tireWear)">●</span>
+          <span class="wear-lbl">Pneus</span>
+          <span class="wear-pct" [class]="'wp-' + tireColor(car.tireWear)">{{ car.tireWear | number:'1.0-0' }}%</span>
+        </div>
+        <div class="car-wear-item">
+          <span class="wear-dot" [class]="'wd-' + oilColor(car.oilQuality)">●</span>
+          <span class="wear-lbl">Huile</span>
+          <span class="wear-pct" [class]="'wp-' + oilColor(car.oilQuality)">{{ car.oilQuality | number:'1.0-0' }}%</span>
+        </div>
+        <div class="warn-badge" *ngIf="(car.tireWear) <= 30 || (car.oilQuality) <= 25">
+          ⚠ Entretien requis
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="action-row">
+    <button (click)="goToParkings()" class="btn btn-m" style="flex:1;padding:.85rem">▸ ALLER À LA COURSE</button>
+    <button (click)="goToAutoShop()" class="btn btn-outline-primary" [disabled]="!hasGarage">🔧 Auto Shop</button>
+    <button (click)="goToUpgrade()"  class="btn btn-outline-primary" [disabled]="!hasGarage">⚙ Préparer</button>
+    <button (click)="goToDealership()" class="btn btn-outline-primary">Concession.</button>
+    <button (click)="cheat()" class="btn-cheat btn">{{ cheatFeedback || '+ CR' }}</button>
+  </div>
+
 </div>
-
-<button (click)="cheat()" class="btn btn-danger">Ajouter 10 000 Crédit</button>
-
-<button (click)="goToDealership()" class="btn btn-danger">Voir les Concessionnaires</button>
-
-<button (click)="goToParkings()" class="btn btn-danger">Aller à la course !</button>
+<ng-template #loadingTpl><div class="loading-state">Chargement...</div></ng-template>

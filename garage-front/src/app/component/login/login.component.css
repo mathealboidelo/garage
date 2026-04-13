@@ -1,0 +1,71 @@
+/* ── Login ───────────────────────────────────────────── */
+:host { display: block; padding: 4rem 0; }
+
+.login-page {
+  min-height: 80vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+
+.game-logo { text-align: center; margin-bottom: 3rem; position: relative; }
+.game-logo h1 {
+  font-size: clamp(2.2rem, 7vw, 4.5rem);
+  font-weight: 900; letter-spacing: .25em; line-height: 1; margin-bottom: .3rem;
+}
+.game-logo .subtitle {
+  font-family: var(--font-mono); font-size: .6rem;
+  color: var(--text-muted); letter-spacing: .5em; text-transform: uppercase;
+}
+.game-logo::before {
+  content: '';
+  position: absolute; left: 50%; top: -2rem; bottom: -2rem; width: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(0,240,255,.15), transparent);
+}
+
+.section-label {
+  font-family: var(--font-mono); font-size: .6rem;
+  color: var(--text-muted); text-transform: uppercase;
+  letter-spacing: .4em; text-align: center; margin-bottom: 1.5rem;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem; width: 100%; max-width: 800px; margin: 0 auto;
+}
+
+.profile-card {
+  background: var(--bg-card) !important;
+  border: 1px solid rgba(0,240,255,.1) !important;
+  cursor: pointer; text-align: center;
+  transition: all .25s !important;
+}
+.profile-card:hover {
+  border-color: var(--neon-cyan) !important;
+  box-shadow: 0 0 0 1px rgba(0,240,255,.25), var(--glow-cyan) !important;
+  transform: translateY(-3px) !important;
+}
+.profile-username {
+  font-family: var(--font-hud); font-size: 1rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .12em; margin-bottom: .25rem;
+}
+.profile-level {
+  font-family: var(--font-mono); font-size: .6rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .2em;
+  margin-bottom: .2rem;
+}
+.profile-level span { color: var(--neon-cyan); }
+.profile-credits {
+  font-family: var(--font-mono); font-size: .8rem;
+  color: var(--neon-gold); text-shadow: var(--glow-gold); margin-bottom: .9rem;
+}
+.profile-actions { display: flex; gap: .5rem; justify-content: center; }
+
+.empty-state {
+  text-align: center; padding: 2.5rem;
+  font-family: var(--font-mono); font-size: .7rem;
+  color: var(--text-muted); text-transform: uppercase; letter-spacing: .2em;
+}
+.new-pilot-cta {
+  margin-top: 2rem; text-align: center;
+}

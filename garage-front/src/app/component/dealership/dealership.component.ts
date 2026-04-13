@@ -8,24 +8,26 @@ import { DealershipService } from 'src/app/services/dealership.service';
   templateUrl: './dealership.component.html',
   styleUrls: ['./dealership.component.css']
 })
-export class DealershipComponent implements OnInit{
+export class DealershipComponent implements OnInit {
 
   dealerships: Dealership[] = [];
 
-  constructor(private dealershipService: DealershipService, private router: Router) {}
+  constructor(
+    private dealershipService: DealershipService,
+    private router: Router
+  ) {}
 
   ngOnInit() {
     this.dealershipService.findAll().subscribe(data => {
-        this.dealerships = data; // On remplit la liste avec la réponse de Java
-        console.log("Concessionnaires chargés :", this.dealerships);
+      this.dealerships = data;
     });
   }
 
-  visitDealership(id : Number){
+  visitDealership(id: number) {
     this.router.navigate(['/dealership', id]);
   }
 
-  goToDashboard(){
+  goToDashboard() {
     this.router.navigate(['/dashboard']);
   }
 }

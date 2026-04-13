@@ -1,69 +1,38 @@
 package com.example.garage;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import lombok.Data;
-
 @Entity
-@Table(name = "parkings") // "user" est souvent un mot réservé en SQL, on utilise "users"
-@Data
+@Table(name = "parkings")
 public class Parking {
-	
-	@Id
+
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-	private long id;
-	
-	private String name;
-	
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<Racers> racers = new ArrayList<>();
-	
-	@OneToMany(cascade = CascadeType.ALL)
-	private List<Race> races = new ArrayList<>();
+    private long id;
 
-	public long getId() {
-		return id;
-	}
+    private String name;
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    @ManyToMany
+    @JoinTable(name = "parkings_racers",
+        joinColumns = @JoinColumn(name = "parking_id"),
+        inverseJoinColumns = @JoinColumn(name = "racer_id"))
+    private List<Racers> racers = new ArrayList<>();
 
-	public List<Racers> getRacers() {
-		return racers;
-	}
+    @ManyToMany
+    @JoinTable(name = "parkings_races",
+        joinColumns = @JoinColumn(name = "parking_id"),
+        inverseJoinColumns = @JoinColumn(name = "race_id"))
+    private List<Race> races = new ArrayList<>();
 
-	public void setRacers(ArrayList<Racers> racers) {
-		this.racers = racers;
-	}
-
-	public List<Race> getRace() {
-		return races;
-	}
-
-	public void setRace(ArrayList<Race> race) {
-		this.races = race;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	public void add(Race race) {
-		races.add(race);
-	}
-	
-	
+    public long   getId()               { return id; }
+    public void   setId(long id)        { this.id = id; }
+    public String getName()             { return name; }
+    public void   setName(String n)     { this.name = n; }
+    public List<Racers> getRacers()     { return racers; }
+    public void   setRacers(List<Racers> r) { this.racers = r; }
+    public List<Race>   getRace()       { return races; }
+    public void   setRace(List<Race> r) { this.races = r; }
+    public void   add(Race race)        { races.add(race); }
 }
