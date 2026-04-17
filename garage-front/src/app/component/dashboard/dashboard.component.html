@@ -95,7 +95,9 @@
     <button (click)="goToAutoShop()" class="btn btn-outline-primary" [disabled]="!hasGarage">🔧 Auto Shop</button>
     <button (click)="goToUpgrade()"  class="btn btn-outline-primary" [disabled]="!hasGarage">⚙ Préparer</button>
     <button (click)="goToDealership()" class="btn btn-outline-primary">Concession.</button>
+    <button (click)="goToSrc()" class="btn btn-src">🏁 SRC</button>
     <button (click)="cheat()" class="btn-cheat btn">{{ cheatFeedback || '+ CR' }}</button>
+    <button (click)="cheatRep()" class="btn-cheat btn" style="background:rgba(192,132,252,.1);border-color:rgba(192,132,252,.4);color:#c084fc">{{ cheatFeedback === '+100 REP' ? '+100 REP' : '+ REP' }}</button>
   </div>
 
 </div>

@@ -1,0 +1,218 @@
+:host{display:block;padding:2rem 0}
+
+/* ── Header ─────────────────────────────────────────────── */
+.src-eyebrow{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.4em;margin-bottom:.3rem}
+.src-title{font-family:var(--font-hud);font-size:clamp(1.4rem,4vw,2.4rem);font-weight:900;text-transform:uppercase;letter-spacing:.15em;color:var(--text-primary);margin:0 0 .3rem}
+.src-subtitle{font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.25em;margin-bottom:2rem}
+.src-header{margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--border-subtle);position:relative}
+.src-header::after{content:'';position:absolute;bottom:-1px;left:0;width:80px;height:2px;background:var(--neon-cyan);box-shadow:var(--glow-cyan)}
+.rep-val{color:var(--neon-gold);text-shadow:var(--glow-gold)}
+
+/* ── Locked ──────────────────────────────────────────────── */
+.locked-msg{text-align:center;padding:3rem;border:1px dashed rgba(255,255,255,.1)}
+.lock-icon{font-size:3rem;margin-bottom:.75rem}.lock-text{font-family:var(--font-hud);font-size:1rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--text-secondary);margin-bottom:.3rem}
+.lock-sub{font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);margin-bottom:.75rem}
+.lock-bar-track{height:4px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;max-width:300px;margin:0 auto}
+.lock-bar-fill{height:100%;background:linear-gradient(90deg,var(--neon-cyan),rgba(0,240,255,.4));transition:width .8s ease}
+.no-invite-msg{font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);text-align:center;padding:2rem;text-transform:uppercase;letter-spacing:.2em}
+
+/* ── Team cards ──────────────────────────────────────────── */
+.invitations-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.35em;margin-bottom:1rem}
+.team-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:2rem}
+.team-card{background:var(--bg-card);border:1px solid var(--border-subtle);padding:1.5rem;position:relative;overflow:hidden;transition:all .2s}
+.team-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--team-color,var(--neon-cyan));opacity:.8}
+.team-card:hover{border-color:rgba(255,255,255,.15);background:var(--bg-card-hover)}
+.team-card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.team-rank-badge{font-family:var(--font-hud);font-size:.8rem;font-weight:900;width:36px;height:36px;display:flex;align-items:center;justify-content:center;border:2px solid;border-radius:3px;flex-shrink:0}
+.team-name{font-family:var(--font-hud);font-size:.9rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text-primary);flex:1}
+.team-rank-num{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em}
+.team-car{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;padding:.4rem .6rem;background:rgba(255,255,255,.03);border-radius:2px}
+.team-car-name{font-family:var(--font-mono);font-size:.65rem;color:var(--text-secondary)}
+.team-car-power{font-family:var(--font-hud);font-size:.7rem;font-weight:700;color:var(--neon-cyan);text-shadow:var(--glow-cyan)}
+.team-stats{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem}
+.ts-row{display:flex;align-items:center;gap:.5rem}
+.ts-lbl{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;min-width:55px}
+.ts-track{flex:1;height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden}
+.ts-fill{height:100%;border-radius:2px;opacity:.8}
+.ts-val{font-family:var(--font-mono);font-size:.6rem;color:var(--text-secondary);min-width:50px;text-align:right}
+.team-desc{font-family:var(--font-body);font-size:.72rem;color:var(--text-muted);line-height:1.5;margin-bottom:.75rem;font-style:italic}
+.team-earnings{font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:.25rem}
+.earnings-val{color:var(--neon-gold);text-shadow:var(--glow-gold)}
+.team-budget{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);margin-bottom:1rem}
+.budget-val{color:var(--neon-cyan)}
+.team-actions{display:flex;gap:.5rem;justify-content:flex-end}
+.btn-decline{font-family:var(--font-hud);font-size:.62rem;padding:.35rem .9rem;background:transparent;border:1px solid var(--border-subtle);color:var(--text-muted);cursor:pointer;border-radius:2px}
+.btn-accept{font-family:var(--font-hud);font-size:.65rem;font-weight:700;letter-spacing:.12em;padding:.4rem 1.1rem;background:transparent;border:2px solid;cursor:pointer;transition:all .15s;border-radius:2px}
+.btn-accept:hover{background:rgba(255,255,255,.06)}
+
+/* ── Season Hub ──────────────────────────────────────────── */
+.season-progress{background:var(--bg-card);border:1px solid var(--border-subtle);padding:1.5rem;margin-bottom:1.5rem}
+.sp-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.25em;margin-bottom:.75rem}
+.sp-track{position:relative;height:6px;background:rgba(255,255,255,.05);border-radius:3px;overflow:visible;margin-bottom:1rem}
+.sp-fill{height:100%;border-radius:3px;transition:width .8s ease}
+.sp-markers{position:absolute;top:0;left:0;right:0;bottom:0}
+.sp-marker{position:absolute;top:-3px;width:2px;height:12px;background:rgba(255,255,255,.15);border-radius:1px;transform:translateX(-50%)}
+.sp-marker.done{background:rgba(255,255,255,.4)}
+.sp-races{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.5rem}
+.sp-race-chip{font-family:var(--font-mono);font-size:.58rem;padding:.15rem .45rem;border:1px solid var(--border-subtle);border-radius:2px;color:var(--text-muted)}
+.sp-race-chip.top3{color:var(--neon-gold);border-color:rgba(255,215,0,.4)}
+.season-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle);margin-bottom:1.5rem}
+.ss-card{background:var(--bg-card);padding:1rem;text-align:center}
+.ss-label{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-bottom:.4rem}
+.ss-val{font-family:var(--font-hud);font-size:1.2rem;font-weight:700;color:var(--text-primary);display:block}
+.ss-val.gold{color:var(--neon-gold);text-shadow:var(--glow-gold)}
+.season-actions{display:flex;gap:.75rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.btn-race-start{flex:1;padding:1rem;font-family:var(--font-hud);font-size:.85rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;background:transparent;border:2px solid;cursor:pointer;transition:all .2s;border-radius:2px;min-width:160px}
+.btn-race-start:hover{background:rgba(255,255,255,.05)}
+.btn-upgrade-access{padding:.75rem 1.5rem;font-family:var(--font-hud);font-size:.7rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;background:transparent;border:1px solid var(--neon-gold);color:var(--neon-gold);cursor:pointer;transition:all .2s;border-radius:2px}
+.btn-upgrade-access:hover{background:rgba(255,215,0,.08)}
+
+/* ── Racing animation ────────────────────────────────────── */
+.racing-screen{animation:pageIn .3s ease both}
+.lap-wear-row{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;padding:.75rem 1rem;background:var(--bg-card);border:1px solid var(--border-subtle);flex-wrap:wrap}
+.lap-wear-item{display:flex;align-items:center;gap:.5rem;flex:1;min-width:140px}
+.lap-wear-lbl{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;min-width:38px}
+.wear-bar-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.wear-bar{height:100%;border-radius:3px;transition:width .6s ease}
+.wear-bar.cyan{background:linear-gradient(90deg,var(--neon-cyan),rgba(0,240,255,.4));box-shadow:var(--glow-cyan)}
+.wear-bar.gold{background:linear-gradient(90deg,var(--neon-gold),rgba(255,215,0,.4));box-shadow:var(--glow-gold)}
+.wear-bar.mag{background:linear-gradient(90deg,var(--neon-magenta),rgba(255,0,60,.4));box-shadow:var(--glow-magenta)}
+.wear-val,.lap-wear-val{font-family:var(--font-mono);font-size:.6rem;min-width:34px;text-align:right}
+.wear-cyan,.lap-wear-val.wear-cyan{color:var(--neon-cyan)}
+.wear-gold,.lap-wear-val.wear-gold{color:var(--neon-gold)}
+.wear-mag,.lap-wear-val.wear-mag{color:var(--neon-magenta)}
+.live-rank-badge{font-family:var(--font-hud);font-size:.85rem;font-weight:900;color:var(--neon-cyan);text-shadow:var(--glow-cyan);border:1px solid rgba(0,240,255,.3);padding:.3rem .75rem;border-radius:2px;white-space:nowrap;margin-left:auto}
+
+.src-circuit-wrap{display:flex;gap:1rem;align-items:stretch;margin-bottom:1.5rem}
+.src-circuit-track{flex:1;position:relative;height:130px;background:rgba(255,255,255,.03);border:1px solid var(--border-subtle);border-radius:3px;overflow:hidden}
+.track-bg{position:absolute;inset:0;display:flex}
+.track-straight{background:rgba(0,240,255,.04)}
+.track-corner{background:rgba(255,0,60,.04)}
+.start-line{position:absolute;left:2%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.25)}
+.finish-line{position:absolute;right:1%;top:0;bottom:0;width:3px;background:repeating-linear-gradient(to bottom,#fff 0,#fff 6px,#000 6px,#000 12px);opacity:.6;display:flex;align-items:flex-end;padding-bottom:2px}
+.finish-flag{font-size:.9rem;position:absolute;bottom:2px;right:4px}
+.track-section-label{position:absolute;font-family:var(--font-mono);font-size:.48rem;color:rgba(255,255,255,.15);text-transform:uppercase;letter-spacing:.15em;top:4px}
+.straight-label{left:20%}.corner-label{left:65%}
+
+.race-dot{position:absolute;border-radius:50%;transition:left .05s linear,top .1s ease}
+.ai-dot{width:7px;height:7px;background:#444;transform:translate(-50%,-50%)}
+.player-src-dot{width:13px;height:13px;transform:translate(-50%,-50%);z-index:5;border-radius:50%;transition:left .05s linear}
+
+.src-live-positions{width:80px;background:var(--bg-card);border:1px solid var(--border-subtle);padding:.75rem .6rem;flex-shrink:0;border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem}
+.live-pos-label{font-family:var(--font-hud);font-size:1.8rem;font-weight:900;color:var(--neon-cyan);text-shadow:var(--glow-cyan);line-height:1}
+.live-pos-sub{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted)}
+.live-lap-info{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-align:center;margin-top:.5rem;line-height:1.4}
+.racing-ticker{font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.25em;margin-top:1rem;text-align:center}
+.blink{animation:flicker 1s ease-in-out infinite}
+
+/* ── Race result ─────────────────────────────────────────── */
+.race-result-screen{animation:pageIn .4s ease both}
+.result-banner{text-align:center;padding:2rem;margin-bottom:1.5rem;border:1px solid;position:relative;overflow:hidden}
+.result-banner::before{content:'';position:absolute;inset:0;opacity:.05}
+.result-banner.win{border-color:var(--neon-gold)}.result-banner.win::before{background:var(--neon-gold)}
+.result-banner.mid{border-color:var(--neon-cyan)}.result-banner.mid::before{background:var(--neon-cyan)}
+.result-banner.loss{border-color:var(--neon-magenta)}.result-banner.loss::before{background:var(--neon-magenta)}
+.result-pos-big{font-family:var(--font-hud);font-size:3rem;font-weight:900;line-height:1}
+.result-race-name{font-family:var(--font-hud);font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.15em;color:var(--text-secondary);margin-top:.4rem}
+.result-meta{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-top:.2rem}
+.race-rewards{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle);margin-bottom:1.5rem}
+.rr-item{background:var(--bg-card);padding:.8rem;text-align:center}
+.rr-lbl{display:block;font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.3rem}
+.rr-val{display:block;font-family:var(--font-hud);font-size:.9rem;font-weight:700;color:var(--text-primary)}
+.rr-val.cyan{color:var(--neon-cyan)}.rr-val.gold{color:var(--neon-gold);text-shadow:var(--glow-gold)}
+.standings-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3em;margin-bottom:.75rem}
+.standings-list{display:flex;flex-direction:column;gap:1px;margin-bottom:1.5rem;max-height:500px;overflow-y:auto}
+.standing-row{display:flex;align-items:center;gap:.75rem;padding:.5rem .75rem;background:var(--bg-card);border:1px solid transparent;transition:all .15s}
+.standing-row:hover{background:var(--bg-card-hover)}
+.player-row{border-color:var(--neon-cyan)!important;background:rgba(0,240,255,.04)!important}
+.standing-pos{font-family:var(--font-hud);font-size:.7rem;font-weight:700;min-width:24px;color:var(--text-muted)}
+.standing-pos.podium{color:var(--neon-gold)}
+.standing-color-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.standing-driver{flex:1;min-width:0}
+.standing-name{font-family:var(--font-hud);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-primary);display:block}
+.player-name{color:var(--neon-cyan)!important;text-shadow:var(--glow-cyan)}
+.standing-team-car{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.standing-car{color:var(--neon-cyan);opacity:.7}
+.standing-laps{font-family:var(--font-mono);font-size:.52rem;color:var(--text-muted);opacity:.7;display:block}
+.standing-pts{font-family:var(--font-mono);font-size:.62rem;color:var(--neon-gold);min-width:40px;text-align:right;flex-shrink:0}
+.season-over-banner{text-align:center;padding:1.5rem;border:1px solid var(--neon-gold);background:rgba(255,215,0,.05);margin-bottom:1.5rem}
+.so-title{font-family:var(--font-hud);font-size:1.2rem;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:var(--neon-gold);text-shadow:var(--glow-gold);margin-bottom:.5rem}
+.so-payout{font-family:var(--font-mono);font-size:.7rem;color:var(--text-secondary)}
+.so-amount{color:var(--neon-gold);font-size:1rem;font-family:var(--font-hud);font-weight:700}
+.result-nav{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+.btn-continue{flex:1;padding:.8rem;font-family:var(--font-hud);font-size:.75rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;background:transparent;border:2px solid var(--neon-cyan);color:var(--neon-cyan);cursor:pointer;transition:all .2s;border-radius:2px}
+.btn-continue:hover{background:rgba(0,240,255,.08);box-shadow:var(--glow-cyan)}
+.btn-stats{padding:.8rem 1.2rem;font-family:var(--font-hud);font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:transparent;border:1px solid var(--neon-gold);color:var(--neon-gold);cursor:pointer;transition:all .2s;border-radius:2px}
+.btn-stats:hover{background:rgba(255,215,0,.08)}
+.btn-upgrades{padding:.8rem 1.2rem;font-family:var(--font-hud);font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;background:transparent;border:1px solid #9900ff;color:#9900ff;cursor:pointer;transition:all .2s;border-radius:2px}
+.btn-upgrades:hover{background:rgba(153,0,255,.08)}
+
+/* ── Car Stats ───────────────────────────────────────────── */
+.car-stats-screen{animation:pageIn .3s ease both}
+.stats-car-name{font-family:var(--font-hud);font-size:1.2rem;font-weight:900;text-transform:uppercase;letter-spacing:.15em;margin-bottom:1.5rem}
+.car-stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle);margin-bottom:1.5rem}
+.csg-card{background:var(--bg-card);padding:1.25rem;text-align:center}
+.csg-label{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-bottom:.4rem}
+.csg-val{font-family:var(--font-hud);font-size:1.3rem;font-weight:900;color:var(--text-primary);margin-bottom:.2rem}
+.csg-sub{font-family:var(--font-mono);font-size:.55rem;color:var(--neon-gold);margin-bottom:.5rem}
+.csg-bar-track{height:3px;background:rgba(255,255,255,.05);border-radius:2px;overflow:hidden;margin-top:.5rem}
+.csg-bar{height:100%;background:linear-gradient(90deg,var(--neon-cyan),rgba(0,240,255,.4));border-radius:2px;transition:width .8s ease}
+.wear-after-race{background:var(--bg-card);border:1px solid var(--border-subtle);padding:1.25rem;margin-bottom:1.5rem}
+.war-title{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.25em;margin-bottom:.75rem}
+.war-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.war-lbl{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;min-width:38px}
+.war-val{font-family:var(--font-mono);font-size:.65rem;min-width:34px;text-align:right}
+.lap-scores{background:var(--bg-card);border:1px solid var(--border-subtle);padding:1.25rem;margin-bottom:1.5rem}
+.ls-title{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.25em;margin-bottom:.75rem}
+.ls-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem}
+.ls-lap{font-family:var(--font-mono);font-size:.62rem;color:var(--text-muted);min-width:46px;text-transform:uppercase;letter-spacing:.1em}
+.ls-bar-track{flex:1;height:5px;background:rgba(255,255,255,.05);border-radius:3px;overflow:hidden}
+.ls-bar{height:100%;border-radius:3px;transition:width .6s ease;opacity:.8}
+.ls-val{font-family:var(--font-mono);font-size:.65rem;color:var(--text-secondary);min-width:38px;text-align:right}
+.ls-diff{font-family:var(--font-mono);font-size:.6rem;color:var(--neon-cyan);min-width:40px;text-align:right}
+.ls-diff.neg{color:var(--neon-magenta)}
+
+/* ── Upgrades ────────────────────────────────────────────── */
+.upgrades-screen{animation:pageIn .3s ease both}
+.upgrade-team-name{font-family:var(--font-hud);font-size:1.2rem;font-weight:900;text-transform:uppercase;letter-spacing:.15em;margin-bottom:.5rem}
+.upgrade-budget{font-family:var(--font-mono);font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-bottom:1.5rem}
+.upgrade-feedback{font-family:var(--font-mono);font-size:.7rem;text-transform:uppercase;letter-spacing:.15em;padding:.6rem 1rem;margin-bottom:1rem;border:1px solid rgba(0,240,255,.3);color:var(--neon-cyan);background:rgba(0,240,255,.05);border-radius:2px}
+.upgrade-feedback.err{border-color:rgba(255,0,60,.3);color:var(--neon-magenta);background:rgba(255,0,60,.05)}
+.current-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle);margin-bottom:1.5rem}
+.cs-item{background:var(--bg-card);padding:.75rem;text-align:center}
+.cs-lbl{display:block;font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.15em;margin-bottom:.3rem}
+.cs-val{font-family:var(--font-hud);font-size:1rem;font-weight:700;color:var(--text-primary)}
+.upgrade-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-bottom:2rem}
+.upgrade-card{background:var(--bg-card);border:1px solid var(--border-subtle);padding:1.25rem;transition:all .2s;position:relative}
+.upgrade-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--neon-gold);transform:scaleY(0);transform-origin:top;transition:transform .3s}
+.upgrade-card:hover::before{transform:scaleY(1)}
+.upgrade-card.cant-afford{opacity:.55}
+.uc-icon{font-size:1.5rem;margin-bottom:.4rem}
+.uc-name{font-family:var(--font-hud);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--text-primary);margin-bottom:.2rem}
+.uc-desc{font-family:var(--font-mono);font-size:.65rem;color:var(--text-muted);line-height:1.5;margin-bottom:.75rem;flex:1}
+.uc-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.75rem;border-top:1px solid var(--border-subtle)}
+.uc-cost{font-family:var(--font-mono);font-size:.8rem;color:var(--neon-gold);text-shadow:var(--glow-gold)}
+.uc-cost.cant{color:var(--neon-magenta)}
+.btn-upgrade{font-family:var(--font-hud);font-size:.62rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;padding:.35rem .9rem;background:transparent;border:1px solid var(--neon-gold);color:var(--neon-gold);cursor:pointer;transition:all .15s;border-radius:2px}
+.btn-upgrade:hover:not([disabled]){background:rgba(255,215,0,.08)}
+.btn-upgrade[disabled]{border-color:var(--text-muted);color:var(--text-muted);cursor:not-allowed}
+
+/* ── Season over ─────────────────────────────────────────── */
+.season-over-screen{animation:pageIn .4s ease both}
+.final-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border-subtle);border:1px solid var(--border-subtle);margin-bottom:1.5rem}
+.fs-item{background:var(--bg-card);padding:1.25rem;text-align:center}
+.fs-lbl{display:block;font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-bottom:.4rem}
+.fs-val{display:block;font-family:var(--font-hud);font-size:1.4rem;font-weight:900;color:var(--text-primary)}
+.fs-val.gold{color:var(--neon-gold);text-shadow:var(--glow-gold)}
+.race-history{margin-bottom:2rem}
+.rh-label{font-family:var(--font-mono);font-size:.6rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3em;margin-bottom:.75rem}
+.rh-chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.rh-chip{font-family:var(--font-mono);font-size:.62rem;padding:.25rem .6rem;border:1px solid var(--border-subtle);border-radius:2px;color:var(--text-muted)}
+.rh-chip.top1{color:var(--neon-gold);border-color:rgba(255,215,0,.5);background:rgba(255,215,0,.06)}
+.rh-chip.top3{color:var(--neon-cyan);border-color:rgba(0,240,255,.3)}
+.rh-chip.top10{color:var(--text-secondary)}
+.rh-chip.back{color:var(--text-muted)}
+.btn-new-season{display:block;width:100%;padding:.9rem;font-family:var(--font-hud);font-size:.85rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;background:transparent;border:2px solid var(--neon-gold);color:var(--neon-gold);cursor:pointer;transition:all .2s;margin-bottom:1rem;border-radius:2px}
+.btn-new-season:hover{background:rgba(255,215,0,.08);box-shadow:var(--glow-gold)}
+.nav-row{display:flex;gap:.75rem;padding-top:1.5rem;border-top:1px solid var(--border-subtle)}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}

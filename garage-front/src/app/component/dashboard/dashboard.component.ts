@@ -32,6 +32,16 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  cheatRep() {
+    this.userService.cheatRep().subscribe(() => {
+      if (this.user) {
+        this.user.reputation = (this.user.reputation || 0) + 100;
+        this.cheatFeedback = '+100 REP';
+        setTimeout(() => this.cheatFeedback = '', 2000);
+      }
+    });
+  }
+
   cheat() {
     this.userService.cheat().subscribe(() => {
       if (this.user) { this.user.credits += 10000; this.cheatFeedback = '+10 000 CR'; setTimeout(() => this.cheatFeedback = '', 2000); }
@@ -43,6 +53,7 @@ export class DashboardComponent implements OnInit {
   goToParkings()    { this.router.navigate(['/parkings']); }
   goToUpgrade()     { this.router.navigate(['/upgrade']); }
   goToAutoShop()    { this.router.navigate(['/autoshop']); }
+  goToSrc()         { this.router.navigate(['/src']); }
 
   get firstCar()  { return this.user?.garage?.cars?.[0] ?? null; }
   get hasGarage() { return (this.user?.garage?.cars?.length ?? 0) > 0; }

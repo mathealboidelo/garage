@@ -6,8 +6,9 @@ export class Car {
   weight!: number;
   aspiration!: string;
   tireType!: string;
+  tireModel!: string;   // Street | Sport | Racing_Soft | Racing_Medium | etc.
   price!: number;
-  tireWear!: number;
-  oilQuality!: number;
-  racesCount!: number;
+  tireWear: number = 100;
+  oilQuality: number = 100;
+  racesCount: number = 0;
 }

@@ -1,11 +1,8 @@
 package com.example.garage;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-/**
- * Représente l'état des upgrades d'une voiture.
- * Un enregistrement par voiture — chaque champ int stocke le niveau (0=Stock, 1=Sport, 2=Racing).
- */
 @Entity
 @Table(name = "car_upgrades")
 public class CarUpgrade {
@@ -16,9 +13,9 @@ public class CarUpgrade {
 
     @OneToOne
     @JoinColumn(name = "car_id", unique = true)
+    @JsonIgnore  // évite la boucle CarUpgrade → Car → Garage → Cars → CarUpgrade
     private Car car;
 
-    // Niveaux d'upgrade (0 = Stock, 1 = Sport, 2 = Racing)
     private int engineLevel       = 0;
     private int transmissionLevel = 0;
     private int suspensionLevel   = 0;
@@ -26,29 +23,21 @@ public class CarUpgrade {
     private int weightLevel       = 0;
     private int tiresLevel        = 0;
 
-    // ── Getters / Setters ──────────────────────────────────
+    public Long getId()             { return id; }
+    public void setId(Long id)      { this.id = id; }
+    public Car  getCar()            { return car; }
+    public void setCar(Car car)     { this.car = car; }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public Car getCar() { return car; }
-    public void setCar(Car car) { this.car = car; }
-
-    public int getEngineLevel()       { return engineLevel; }
-    public void setEngineLevel(int v) { this.engineLevel = v; }
-
-    public int getTransmissionLevel()       { return transmissionLevel; }
-    public void setTransmissionLevel(int v) { this.transmissionLevel = v; }
-
-    public int getSuspensionLevel()       { return suspensionLevel; }
-    public void setSuspensionLevel(int v) { this.suspensionLevel = v; }
-
-    public int getBrakesLevel()       { return brakesLevel; }
-    public void setBrakesLevel(int v) { this.brakesLevel = v; }
-
-    public int getWeightLevel()       { return weightLevel; }
-    public void setWeightLevel(int v) { this.weightLevel = v; }
-
-    public int getTiresLevel()       { return tiresLevel; }
-    public void setTiresLevel(int v) { this.tiresLevel = v; }
+    public int  getEngineLevel()           { return engineLevel; }
+    public void setEngineLevel(int v)      { this.engineLevel = v; }
+    public int  getTransmissionLevel()     { return transmissionLevel; }
+    public void setTransmissionLevel(int v){ this.transmissionLevel = v; }
+    public int  getSuspensionLevel()       { return suspensionLevel; }
+    public void setSuspensionLevel(int v)  { this.suspensionLevel = v; }
+    public int  getBrakesLevel()           { return brakesLevel; }
+    public void setBrakesLevel(int v)      { this.brakesLevel = v; }
+    public int  getWeightLevel()           { return weightLevel; }
+    public void setWeightLevel(int v)      { this.weightLevel = v; }
+    public int  getTiresLevel()            { return tiresLevel; }
+    public void setTiresLevel(int v)       { this.tiresLevel = v; }
 }

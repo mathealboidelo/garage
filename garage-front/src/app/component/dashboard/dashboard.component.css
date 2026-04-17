@@ -193,3 +193,5 @@
 .wear-pct { font-weight: 500; }
 .wp-cyan{color:var(--neon-cyan)} .wp-gold{color:var(--neon-gold)} .wp-mag{color:var(--neon-magenta);text-shadow:var(--glow-magenta)}
 .warn-badge { font-family:var(--font-mono); font-size:.55rem; color:var(--neon-magenta); border:1px solid rgba(255,0,60,.3); padding:.15rem .5rem; text-transform:uppercase; letter-spacing:.1em; animation:flicker 2s ease-in-out infinite; margin-left:auto; }
+.btn-src{font-family:var(--font-hud);font-size:.65rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;padding:.5rem 1rem;background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.4);color:var(--neon-gold);cursor:pointer;border-radius:2px;transition:all .15s}
+.btn-src:hover{background:rgba(255,215,0,.12);box-shadow:var(--glow-gold)}

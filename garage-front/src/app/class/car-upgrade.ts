@@ -27,7 +27,7 @@ export class UpgradeResult {
   transmissionLevel!: number;
   suspensionLevel!: number;
   brakesLevel!: number;
-  weightLevelVal!: number;
+  weightLevel!: number;
   tiresLevel!: number;
 }
 

@@ -1,132 +1,73 @@
-<div class="workshop" *ngIf="!loading; else loadingTpl">
+<div class="container mt-5" *ngIf="!loading; else loadingTpl">
+  <div *ngIf="user && selectedCar">
 
-  <!-- ══ HEADER ════════════════════════════════════════════ -->
-  <div class="workshop-header">
-    <div class="workshop-title-block">
+    <!-- ══ HEADER ═══════════════════════════════════════════ -->
+    <div class="workshop-header">
       <div class="workshop-eyebrow">// ATELIER</div>
-      <h1 class="workshop-title">Préparation Voiture</h1>
+      <h1 class="workshop-title">Préparation voiture</h1>
     </div>
-    <div class="workshop-balance">
-      <span class="balance-label">Budget</span>
-      <span class="balance-val">{{ user?.credits | number }} CR</span>
-    </div>
-  </div>
 
-  <!-- ══ NO CAR ════════════════════════════════════════════ -->
-  <div *ngIf="!selectedCar" class="no-car-state">
-    <div class="no-car-icon">🚗</div>
-    <div class="no-car-msg">Aucune voiture dans ton garage.</div>
-    <button (click)="goToDealership()" class="btn btn-outline-primary">
-      Acheter une voiture
-    </button>
-  </div>
-
-  <div *ngIf="selectedCar" class="workshop-body">
-
-    <!-- ══ CAR SELECTOR (si plusieurs voitures) ═══════════ -->
-    <div class="car-selector" *ngIf="(user?.garage?.cars?.length ?? 0) > 1">
-      <button
-        class="car-tab"
-        *ngFor="let car of user?.garage?.cars"
-        [class.active]="car.id === selectedCar.id"
+    <!-- ══ CAR SELECTOR ══════════════════════════════════════ -->
+    <div class="car-selector" *ngIf="(user.garage?.cars?.length || 0) > 1">
+      <button *ngFor="let car of user.garage?.cars"
+        class="car-tab" [class.active]="selectedCar?.id === car.id"
         (click)="selectCar(car)">
         {{ car.name }}
       </button>
     </div>
 
-    <!-- ══ CAR STATS PANEL ════════════════════════════════ -->
-    <div class="car-panel">
-
-      <div class="car-info">
-        <div class="car-panel-name">{{ selectedCar.name }}</div>
-        <div class="car-panel-meta">
-          {{ selectedCar.aspiration }} · {{ selectedCar.tireType }}
+    <!-- ══ CAR STATS ══════════════════════════════════════════ -->
+    <div class="car-stats-bar">
+      <div class="csb-name">{{ selectedCar.name }}</div>
+      <div class="csb-tier" [attr.data-tier]="tierLabel(selectedCar.power)">{{ tierLabel(selectedCar.power) }}</div>
+      <div class="csb-stats">
+        <div class="csb-stat">
+          <span class="csb-lbl">Puissance</span>
+          <div class="csb-track"><div class="csb-fill cyan" [style.width.%]="powerPercent(selectedCar.power)"></div></div>
+          <span class="csb-val">{{ selectedCar.power }} CH</span>
         </div>
-        <div class="car-tier" [attr.data-tier]="tierLabel(selectedCar.power)">
-          TIER {{ tierLabel(selectedCar.power) }}
+        <div class="csb-stat">
+          <span class="csb-lbl">Poids</span>
+          <div class="csb-track"><div class="csb-fill mag" [style.width.%]="weightPercent(selectedCar.weight)"></div></div>
+          <span class="csb-val">{{ selectedCar.weight }} kg</span>
+        </div>
+        <div class="csb-stat">
+          <span class="csb-lbl">Grip</span>
+          <div class="csb-track"><div class="csb-fill gold" [style.width.%]="gripPercent(selectedCar.gripModifier)"></div></div>
+          <span class="csb-val">×{{ selectedCar.gripModifier }}</span>
+        </div>
+        <div class="csb-stat">
+          <span class="csb-lbl">Pneus</span>
+          <span class="csb-val csb-tire">{{ selectedCar.tireModel || 'Street' }}</span>
         </div>
       </div>
-
-      <div class="car-stats">
-
-        <!-- PUISSANCE -->
-        <div class="stat-block">
-          <div class="stat-header">
-            <span class="stat-name">Puissance</span>
-            <span class="stat-value cyan">{{ selectedCar.power }} CH</span>
-          </div>
-          <div class="stat-track">
-            <div class="stat-fill cyan-fill" [style.width.%]="powerPercent(selectedCar.power)"></div>
-          </div>
-        </div>
-
-        <!-- POIDS -->
-        <div class="stat-block">
-          <div class="stat-header">
-            <span class="stat-name">Légèreté</span>
-            <span class="stat-value mag">{{ selectedCar.weight }} KG</span>
-          </div>
-          <div class="stat-track">
-            <div class="stat-fill mag-fill" [style.width.%]="weightPercent(selectedCar.weight)"></div>
-          </div>
-        </div>
-
-        <!-- GRIP -->
-        <div class="stat-block">
-          <div class="stat-header">
-            <span class="stat-name">Grip</span>
-            <span class="stat-value gold">× {{ selectedCar.gripModifier }}</span>
-          </div>
-          <div class="stat-track">
-            <div class="stat-fill gold-fill" [style.width.%]="gripPercent(selectedCar.gripModifier)"></div>
-          </div>
-        </div>
-
-      </div>
+      <div class="csb-balance">{{ user.credits | number }} CR</div>
     </div>
 
-    <!-- ══ RESULT TOAST ═══════════════════════════════════ -->
-    <div class="result-toast" *ngIf="lastResult" [class.win]="lastResult.success">
-      <div class="toast-title">{{ lastResult.message }}</div>
-      <div class="toast-deltas">
-        <span *ngIf="lastResult.powerAfter !== lastResult.powerBefore">
-          ⚡ {{ lastResult.powerBefore }} → <strong>{{ lastResult.powerAfter }}</strong> CH
-        </span>
-        <span *ngIf="lastResult.weightAfter !== lastResult.weightBefore">
-          ⬇ {{ lastResult.weightBefore }} → <strong>{{ lastResult.weightAfter }}</strong> KG
-        </span>
-        <span *ngIf="lastResult.gripAfter !== lastResult.gripBefore">
-          ○ ×{{ lastResult.gripBefore }} → <strong>×{{ lastResult.gripAfter }}</strong>
-        </span>
-        <span *ngIf="lastResult.tireAfter !== lastResult.tireBefore">
-          ○ {{ lastResult.tireBefore }} → <strong>{{ lastResult.tireAfter }}</strong>
-        </span>
-        <span class="toast-cost">-{{ lastResult.costPaid | number }} CR · Solde : {{ lastResult.newBalance | number }} CR</span>
-      </div>
+    <!-- Toast résultat -->
+    <div class="upgrade-toast" *ngIf="lastResult" [class.success]="lastResult.success">
+      <span class="toast-msg">{{ lastResult.message }}</span>
+      <span *ngIf="lastResult.powerAfter !== lastResult.powerBefore">
+        ⚙ {{ lastResult.powerBefore }} → <strong>{{ lastResult.powerAfter }} CH</strong>
+      </span>
+      <span *ngIf="lastResult.gripAfter !== lastResult.gripBefore">
+        ○ Grip {{ lastResult.gripBefore | number:'1.2-2' }} → <strong>{{ lastResult.gripAfter | number:'1.2-2' }}</strong>
+      </span>
+      <span *ngIf="lastResult.weightAfter !== lastResult.weightBefore">
+        ⬇ {{ lastResult.weightBefore }} → <strong>{{ lastResult.weightAfter }} kg</strong>
+      </span>
+      <span class="toast-cost">-{{ lastResult.costPaid | number }} CR · Solde : {{ lastResult.newBalance | number }} CR</span>
     </div>
 
-    <!-- ══ UPGRADE CATALOGUE ══════════════════════════════ -->
-    <div class="catalogue-header">Pièces disponibles</div>
-
+    <!-- ══ UPGRADES MÉCANIQUES ════════════════════════════════ -->
+    <div class="section-label">Upgrades mécaniques</div>
     <div class="upgrade-grid">
-
-      <div
-        class="upgrade-card"
-        *ngFor="let def of catalog"
-        [class.maxed]="isMaxed(def)"
-        [class.cant-afford]="!canAfford(def) && !isMaxed(def)">
-
-        <!-- Niveau actuel badge -->
-        <div class="upgrade-level-badge" [ngClass]="levelClass(getLevel(def))">
-          {{ levelLabel(getLevel(def)) }}
-        </div>
-
-        <!-- Icon + nom -->
+      <div class="upgrade-card" *ngFor="let def of catalog"
+        [class.maxed]="isMaxed(def)" [class.cant-afford]="!canAfford(def) && !isMaxed(def)">
+        <div class="upgrade-level-badge" [ngClass]="levelClass(getLevel(def))">{{ levelLabel(getLevel(def)) }}</div>
         <div class="upgrade-icon">{{ def.icon }}</div>
         <div class="upgrade-name">{{ def.label }}</div>
         <div class="upgrade-desc">{{ def.description }}</div>
-
-        <!-- Niveau progress 3 pips -->
         <div class="level-pips">
           <div class="pip" [class.filled]="getLevel(def) >= 0">Stock</div>
           <div class="pip-arrow">▸</div>
@@ -134,42 +75,136 @@
           <div class="pip-arrow">▸</div>
           <div class="pip" [class.filled]="getLevel(def) >= 2" [class.racing]="getLevel(def) >= 2">Racing</div>
         </div>
-
-        <!-- Bouton achat -->
         <div *ngIf="!isMaxed(def)" class="upgrade-buy-row">
-          <span class="upgrade-cost" [class.cant-afford]="!canAfford(def)">
-            {{ estimatedCost(def) | number }} CR
-          </span>
-          <button
-            class="btn-upgrade"
-            [class.disabled]="!canAfford(def) || buying !== null"
-            [disabled]="!canAfford(def) || buying !== null"
-            (click)="buy(def.type)">
-            <span *ngIf="buying !== def.type">
-              ▸ Installer {{ getLevel(def) === 0 ? 'Sport' : 'Racing' }}
-            </span>
-            <span *ngIf="buying === def.type" class="installing">
-              Installation...
-            </span>
+          <span class="upgrade-cost" [class.cant-afford]="!canAfford(def)">{{ estimatedCost(def) | number }} CR</span>
+          <button class="btn-upgrade" [disabled]="!canAfford(def) || buying !== null" (click)="buy(def.type)">
+            <span *ngIf="buying !== def.type">▸ {{ getLevel(def) === 0 ? 'Sport' : 'Racing' }}</span>
+            <span *ngIf="buying === def.type" class="installing">...</span>
           </button>
         </div>
-
-        <div *ngIf="isMaxed(def)" class="upgrade-maxed-label">
-          ✓ RACING — NIVEAU MAX
-        </div>
-
+        <div *ngIf="isMaxed(def)" class="upgrade-maxed-label">✓ RACING MAX</div>
       </div>
-
     </div>
 
-    <!-- ══ NAV ════════════════════════════════════════════ -->
-    <div class="nav-row">
-      <button (click)="goBack()" class="btn btn-outline-primary">← Tableau de bord</button>
+    <!-- ══ PNEUS ══════════════════════════════════════════════ -->
+    <div class="section-label">Pneus
+      <span class="current-tire-badge">Actuels : {{ currentTireModel }}</span>
     </div>
 
+    <!-- Tabs catégories -->
+    <div class="tire-tabs">
+      <button class="tire-tab" [class.active]="tiresTab === 'street'" (click)="tiresTab = 'street'">
+        🛣 Rue
+      </button>
+      <button class="tire-tab" [class.active]="tiresTab === 'sport'" (click)="tiresTab = 'sport'">
+        🏎 Sport
+      </button>
+      <button class="tire-tab racing-tab" [class.active]="tiresTab === 'racing'" (click)="tiresTab = 'racing'">
+        🏁 Racing
+      </button>
+    </div>
+
+    <div *ngIf="loadingTires" class="loading-tires">Chargement des pneus...</div>
+    <div *ngIf="!loadingTires && tiresCatalog.length === 0" class="loading-tires" style="color:var(--neon-magenta)">
+      Impossible de charger le catalogue — redémarre le backend.
+    </div>
+
+    <!-- Rue -->
+    <div *ngIf="tiresTab === 'street' && !loadingTires" class="tire-grid">
+      <div class="tire-card" *ngFor="let t of tiresStreet"
+        [class.current]="isCurrentTire(t.model)"
+        [class.cant-afford]="!canAffordTire(t)">
+        <div class="tire-current-badge" *ngIf="isCurrentTire(t.model)">MONTÉS</div>
+        <div class="tire-name">{{ t.label }}</div>
+        <div class="tire-desc">{{ t.description }}</div>
+        <div class="tire-stats">
+          <div class="ts-row">
+            <span class="ts-lbl">Grip</span>
+            <span class="ts-val" [class.pos]="t.gripBonus > 0">{{ t.gripBonus > 0 ? '+' : '' }}{{ t.gripBonus | number:'1.2-2' }}</span>
+          </div>
+          <div class="ts-row">
+            <span class="ts-lbl">Durée</span>
+            <span class="ts-wear" [class]="'wear-' + wearColor(t.wearRateMultiplier)">{{ wearLabel(t.wearRateMultiplier) }}</span>
+          </div>
+          <div class="ts-row">
+            <span class="ts-lbl">Remplacement</span>
+            <span class="ts-change-cost">{{ t.changeCost | number }} CR</span>
+          </div>
+        </div>
+        <div class="tire-footer">
+          <span class="tire-price" [class.cant]="!canAffordTire(t)">{{ t.buyCost | number }} CR</span>
+          <button class="btn-tire" *ngIf="!isCurrentTire(t.model)"
+            [disabled]="!canAffordTire(t) || buying !== null"
+            (click)="buyTires(t.model)">
+            <span *ngIf="buying !== 'TIRES_' + t.model">▸ Acheter</span>
+            <span *ngIf="buying === 'TIRES_' + t.model">...</span>
+          </button>
+          <span class="tire-installed" *ngIf="isCurrentTire(t.model)">✓ Installés</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sport -->
+    <div *ngIf="tiresTab === 'sport' && !loadingTires" class="tire-grid">
+      <div class="tire-card sport-card" *ngFor="let t of tiresSport"
+        [class.current]="isCurrentTire(t.model)" [class.cant-afford]="!canAffordTire(t)">
+        <div class="tire-current-badge" *ngIf="isCurrentTire(t.model)">MONTÉS</div>
+        <div class="tire-name">{{ t.label }}</div>
+        <div class="tire-desc">{{ t.description }}</div>
+        <div class="tire-stats">
+          <div class="ts-row"><span class="ts-lbl">Grip</span><span class="ts-val pos">+{{ t.gripBonus | number:'1.2-2' }}</span></div>
+          <div class="ts-row"><span class="ts-lbl">Durée</span><span class="ts-wear" [class]="'wear-' + wearColor(t.wearRateMultiplier)">{{ wearLabel(t.wearRateMultiplier) }}</span></div>
+          <div class="ts-row"><span class="ts-lbl">Remplacement</span><span class="ts-change-cost">{{ t.changeCost | number }} CR</span></div>
+        </div>
+        <div class="tire-footer">
+          <span class="tire-price" [class.cant]="!canAffordTire(t)">{{ t.buyCost | number }} CR</span>
+          <button class="btn-tire" *ngIf="!isCurrentTire(t.model)" [disabled]="!canAffordTire(t) || buying !== null" (click)="buyTires(t.model)">
+            <span *ngIf="buying !== 'TIRES_' + t.model">▸ Acheter</span><span *ngIf="buying === 'TIRES_' + t.model">...</span>
+          </button>
+          <span class="tire-installed" *ngIf="isCurrentTire(t.model)">✓ Installés</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Racing -->
+    <div *ngIf="tiresTab === 'racing' && !loadingTires">
+      <div class="racing-tires-warning">
+        ⚠ Les pneus Racing s'usent très rapidement. Un changement sera nécessaire tous les 2 à 5 courses selon la dureté.
+      </div>
+      <div class="tire-grid tire-grid-racing">
+        <div class="tire-card racing-card" *ngFor="let t of tiresRacing"
+          [class.current]="isCurrentTire(t.model)" [class.cant-afford]="!canAffordTire(t)">
+          <div class="tire-current-badge" *ngIf="isCurrentTire(t.model)">MONTÉS</div>
+          <div class="tire-compound-badge" [class]="'compound-' + t.model.toLowerCase().replace('racing_', '')">
+            {{ t.label.replace('Racing ', '') }}
+          </div>
+          <div class="tire-name">{{ t.label }}</div>
+          <div class="tire-desc">{{ t.description }}</div>
+          <div class="tire-stats">
+            <div class="ts-row"><span class="ts-lbl">Grip</span><span class="ts-val pos big">+{{ t.gripBonus | number:'1.2-2' }}</span></div>
+            <div class="ts-row">
+              <span class="ts-lbl">Usure/course</span>
+              <div class="wear-rate-bar">
+                <div class="wear-rate-fill" [class]="'wear-' + wearColor(t.wearRateMultiplier)"
+                  [style.width.%]="Math.min(t.wearRateMultiplier / 3.5 * 100, 100)"></div>
+              </div>
+              <span class="ts-wear" [class]="'wear-' + wearColor(t.wearRateMultiplier)">×{{ t.wearRateMultiplier }}</span>
+            </div>
+            <div class="ts-row"><span class="ts-lbl">Remplacement</span><span class="ts-change-cost racing-cost">{{ t.changeCost | number }} CR</span></div>
+          </div>
+          <div class="tire-footer">
+            <span class="tire-price racing-price" [class.cant]="!canAffordTire(t)">{{ t.buyCost | number }} CR</span>
+            <button class="btn-tire btn-tire-racing" *ngIf="!isCurrentTire(t.model)" [disabled]="!canAffordTire(t) || buying !== null" (click)="buyTires(t.model)">
+              <span *ngIf="buying !== 'TIRES_' + t.model">▸ Monter</span><span *ngIf="buying === 'TIRES_' + t.model">...</span>
+            </button>
+            <span class="tire-installed" *ngIf="isCurrentTire(t.model)">✓ Montés</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- NAV -->
+    <div class="nav-row"><button (click)="goBack()" class="btn btn-outline-primary">← Dashboard</button></div>
   </div>
 </div>
-
-<ng-template #loadingTpl>
-  <div class="loading-state">Chargement de l'atelier...</div>
-</ng-template>
+<ng-template #loadingTpl><div class="loading-state">Chargement de l'atelier...</div></ng-template>

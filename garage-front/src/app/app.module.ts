@@ -14,13 +14,14 @@ import { ParkingComponent }           from './component/parking/parking.componen
 import { ParkingDetailComponent }     from './component/parking-detail/parking-detail.component';
 import { GarageUpgradeComponent }     from './component/garage-upgrade/garage-upgrade.component';
 import { AutoShopComponent }          from './component/auto-shop/auto-shop.component';
+import { SrcChampionshipComponent }    from './component/src-championship/src-championship.component';
 
 @NgModule({
   declarations: [
     AppComponent, UserFormComponent, UserListComponent, LoginComponent,
     DashboardComponent, DealershipComponent, DealershipDetailComponent,
     ParkingComponent, ParkingDetailComponent,
-    GarageUpgradeComponent, AutoShopComponent,
+    GarageUpgradeComponent, AutoShopComponent, SrcChampionshipComponent,
   ],
   imports: [BrowserModule, AppRoutingModule, HttpClientModule, FormsModule],
   providers: [],

@@ -1,0 +1,309 @@
+<div class="container mt-5" *ngIf="!loading; else loadingTpl">
+
+  <!-- ══ INVITATIONS ══════════════════════════════════════ -->
+  <div *ngIf="phase === 'invitations'">
+    <div class="src-header">
+      <div class="src-eyebrow">// MODE COMPÉTITION</div>
+      <h1 class="src-title">Street Racing Championship</h1>
+      <div class="src-subtitle">Réputation : <span class="rep-val">{{ user?.reputation || 0 }} pts</span></div>
+    </div>
+    <div *ngIf="(user?.reputation || 0) < 300" class="locked-msg">
+      <div class="lock-icon">🔒</div>
+      <div class="lock-text">Le SRC se débloque à 300 de réputation</div>
+      <div class="lock-sub">{{ user?.reputation || 0 }} / 300</div>
+      <div class="lock-bar-track"><div class="lock-bar-fill" [style.width.%]="((user?.reputation || 0) / 300) * 100"></div></div>
+    </div>
+    <div *ngIf="(user?.reputation || 0) >= 300 && invitations.length === 0" class="no-invite-msg">Aucune invitation disponible.</div>
+    <div *ngIf="invitations.length > 0">
+      <div class="invitations-label">Invitations reçues</div>
+      <div class="team-grid">
+        <div class="team-card" *ngFor="let team of invitations" [style.--team-color]="team.teamColor">
+          <div class="team-card-header">
+            <div class="team-rank-badge" [style.color]="rankColor(team.rank)" [style.border-color]="rankColor(team.rank)">{{ rankLabel(team.rank) }}</div>
+            <div class="team-name">{{ team.name }}</div>
+            <div class="team-rank-num">Rang {{ team.rank }}/10</div>
+          </div>
+          <div class="team-car"><span class="team-car-name">{{ team.carName }}</span><span class="team-car-power">{{ team.carPower }} CH</span></div>
+          <div class="team-stats">
+            <div class="ts-row"><span class="ts-lbl">Puissance</span><div class="ts-track"><div class="ts-fill" [style.width.%]="(team.carPower / 600) * 100" [style.background]="team.teamColor"></div></div><span class="ts-val">{{ team.carPower }} CH</span></div>
+            <div class="ts-row"><span class="ts-lbl">Grip</span><div class="ts-track"><div class="ts-fill" [style.width.%]="((team.carGrip - 1.2) / 0.7) * 100" [style.background]="team.teamColor"></div></div><span class="ts-val">×{{ team.carGrip }}</span></div>
+            <div class="ts-row"><span class="ts-lbl">Poids</span><div class="ts-track"><div class="ts-fill" [style.width.%]="100 - ((team.carWeight - 900) / 3)" [style.background]="team.teamColor"></div></div><span class="ts-val">{{ team.carWeight }} kg</span></div>
+          </div>
+          <div class="team-desc">{{ team.description }}</div>
+          <div class="team-earnings">Gains saison estimés : <span class="earnings-val">{{ team.estimatedSeasonEarnings | number }} CR</span></div>
+          <div class="team-budget">Budget : <span class="budget-val">{{ team.budget | number }} CR</span></div>
+          <div class="team-actions">
+            <button class="btn-decline">Décliner</button>
+            <button class="btn-accept" [style.border-color]="team.teamColor" [style.color]="team.teamColor" (click)="joinTeam(team)">▸ Rejoindre</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="nav-row"><button (click)="goBack()" class="btn btn-outline-primary">← Retour</button></div>
+  </div>
+
+  <!-- ══ SEASON HUB ════════════════════════════════════════ -->
+  <div *ngIf="phase === 'season' && season">
+    <div class="src-header">
+      <div class="src-eyebrow">// SAISON EN COURS</div>
+      <h1 class="src-title" [style.color]="season.teamColor">{{ season.teamName }}</h1>
+      <div class="src-subtitle">{{ season.carName }} · {{ season.carPower }} CH</div>
+    </div>
+    <div class="season-progress">
+      <div class="sp-label">Course {{ season.currentRace }} / {{ season.totalRaces }}</div>
+      <div class="sp-track">
+        <div class="sp-fill" [style.width.%]="progressPercent" [style.background]="season.teamColor"></div>
+        <div class="sp-markers">
+          <div class="sp-marker" *ngFor="let _ of [].constructor(season.totalRaces); let i = index" [style.left.%]="((i + 1) / season.totalRaces) * 100" [class.done]="i < season.currentRace"></div>
+        </div>
+      </div>
+      <div class="sp-races">
+        <span *ngFor="let pos of season.racePositions; let i = index" class="sp-race-chip" [class.top3]="pos <= 3">C{{ i + 1 }}: {{ posLabel(pos) }}</span>
+      </div>
+    </div>
+    <div class="season-stats">
+      <div class="ss-card"><div class="ss-label">Points</div><div class="ss-val" [style.color]="season.teamColor">{{ season.playerPoints }}</div></div>
+      <div class="ss-card"><div class="ss-label">Budget écurie</div><div class="ss-val gold">{{ season.teamBudget | number }} CR</div></div>
+      <div class="ss-card"><div class="ss-label">Course suivante</div><div class="ss-val">#{{ season.currentRace + 1 }}</div></div>
+    </div>
+    <div class="season-actions">
+      <button class="btn-race-start" [style.border-color]="season.teamColor" [style.color]="season.teamColor" (click)="startRace()">▸ COURSE #{{ season.currentRace + 1 }}</button>
+      <button class="btn-upgrade-access" (click)="goToUpgrades()">⚙ Améliorer la voiture</button>
+    </div>
+    <div class="nav-row"><button (click)="goBack()" class="btn btn-outline-primary">← Garage</button></div>
+  </div>
+
+  <!-- ══ RACING — 20 points temps réel ═════════════════════ -->
+  <div *ngIf="phase === 'racing'" class="racing-screen">
+    <div class="src-eyebrow">// EN COURSE · TOUR {{ currentLap + 1 }} / 3</div>
+    <div class="src-title" *ngIf="season" [style.color]="season?.teamColor">
+      {{ season?.teamName }} — Course #{{ (season?.currentRace || 0) + 1 }}
+    </div>
+
+    <!-- Infos dégradation en temps réel -->
+    <div class="lap-wear-row">
+      <div class="lap-wear-item">
+        <span class="lap-wear-lbl">Pneus</span>
+        <div class="wear-bar-track"><div class="wear-bar" [class]="tireColor(lapTireWear)" [style.width.%]="lapTireWear"></div></div>
+        <span class="lap-wear-val" [class]="'wear-' + tireColor(lapTireWear)">{{ lapTireWear | number:'1.0-0' }}%</span>
+      </div>
+      <div class="lap-wear-item">
+        <span class="lap-wear-lbl">Huile</span>
+        <div class="wear-bar-track"><div class="wear-bar" [class]="oilColor(lapOilQuality)" [style.width.%]="lapOilQuality"></div></div>
+        <span class="lap-wear-val" [class]="'wear-' + oilColor(lapOilQuality)">{{ lapOilQuality | number:'1.0-0' }}%</span>
+      </div>
+      <div class="live-rank-badge">P{{ liveRanking }}/20</div>
+    </div>
+
+    <!-- Track avec 20 pilotes -->
+    <div class="src-circuit-wrap">
+      <div class="src-circuit-track">
+        <div class="track-bg">
+          <div class="track-straight" style="width:55%"></div>
+          <div class="track-corner"   style="width:45%"></div>
+        </div>
+        <div class="start-line"></div>
+
+        <!-- Labels colonnes -->
+        <div class="track-section-label straight-label">LIGNE DROITE</div>
+        <div class="track-section-label corner-label">VIRAGES</div>
+
+        <!-- 19 pilotes IA (index 1-19) -->
+        <div *ngFor="let pos of driverPositions.slice(1); let i = index"
+          class="race-dot ai-dot"
+          [style.left.%]="pos < 0 ? 2 : pos"
+          [style.top.%]="15 + (i % 5) * 16">
+        </div>
+
+        <!-- Joueur (index 0) — toujours mis en avant -->
+        <div class="race-dot player-src-dot"
+          [style.left.%]="driverPositions[0] < 0 ? 2 : driverPositions[0]"
+          [style.top]="'50%'"
+          [style.background]="season?.teamColor || '#00f0ff'"
+          [style.box-shadow]="'0 0 10px ' + (season?.teamColor || '#00f0ff')">
+        </div>
+
+        <div class="finish-line"><div class="finish-flag">🏁</div></div>
+      </div>
+
+      <!-- Classement live -->
+      <div class="src-live-positions">
+        <div class="live-pos-label">P{{ liveRanking }}</div>
+        <div class="live-pos-sub">/ 20</div>
+        <div class="live-lap-info">Tour<br><strong>{{ currentLap + 1 }}/3</strong></div>
+      </div>
+    </div>
+
+    <div class="racing-ticker blink">
+      ● {{ currentLap === 0 ? 'Départ !' : currentLap === 1 ? 'Tour 2 en cours...' : 'Dernier tour !' }}
+    </div>
+  </div>
+
+  <!-- ══ RACE RESULT ════════════════════════════════════════ -->
+  <div *ngIf="phase === 'race-result' && raceResult" class="race-result-screen">
+    <div class="result-banner" [class.win]="raceResult.playerPosition <= 3" [class.mid]="raceResult.playerPosition > 3 && raceResult.playerPosition <= 10" [class.loss]="raceResult.playerPosition > 10">
+      <div class="result-pos-big">{{ posLabel(raceResult.playerPosition) }}</div>
+      <div class="result-race-name">{{ raceResult.raceName }}</div>
+      <div class="result-meta">D{{ raceResult.straightLine }}% · V{{ raceResult.corner }}% · 3 tours</div>
+    </div>
+
+    <!-- Récompenses -->
+    <div class="race-rewards">
+      <div class="rr-item"><span class="rr-lbl">Points</span><span class="rr-val cyan">+{{ raceResult.pointsEarned }}</span></div>
+      <div class="rr-item"><span class="rr-lbl">Total</span><span class="rr-val">{{ raceResult.totalPoints }}</span></div>
+      <div class="rr-item"><span class="rr-lbl">Budget écurie</span><span class="rr-val gold">+{{ raceResult.raceTeamEarnings | number }} CR</span></div>
+    </div>
+
+    <!-- Classement 20 avec écurie + voiture -->
+    <div class="standings-label">Classement course</div>
+    <div class="standings-list">
+      <div class="standing-row" *ngFor="let driver of sortedResults; let i = index" [class.player-row]="driver.isPlayer">
+        <div class="standing-pos" [class.podium]="i < 3">{{ i + 1 }}</div>
+        <div class="standing-color-dot" [style.background]="driver.teamColor"></div>
+        <div class="standing-driver">
+          <span class="standing-name" [class.player-name]="driver.isPlayer">{{ driver.driverName }}{{ driver.isPlayer ? ' ★' : '' }}</span>
+          <span class="standing-team-car">{{ driver.teamName }} · <span class="standing-car">{{ driver.carName }}</span> {{ driver.carPower }}CH</span>
+          <span class="standing-laps" *ngIf="driver.lapScores?.length">
+            Tours : {{ driver.lapScores[0] | number:'1.0-0' }} / {{ driver.lapScores[1] | number:'1.0-0' }} / {{ driver.lapScores[2] | number:'1.0-0' }}
+          </span>
+        </div>
+        <div class="standing-pts">+{{ pointsForPos(i + 1) }} pts</div>
+      </div>
+    </div>
+
+    <div *ngIf="raceResult.seasonOver" class="season-over-banner">
+      <div class="so-title">🏆 SAISON TERMINÉE</div>
+      <div class="so-payout">Gains versés : <span class="so-amount">{{ raceResult.playerPayout | number }} CR</span></div>
+    </div>
+
+    <div class="result-nav">
+      <button class="btn-stats" (click)="goToCarStats()">📊 Stats voiture</button>
+      <button *ngIf="!raceResult.seasonOver" class="btn-upgrades" (click)="goToUpgrades()">⚙ Améliorer</button>
+      <button class="btn-continue" (click)="backToSeason()">
+        {{ raceResult.seasonOver ? 'Fin de saison →' : 'Course suivante →' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ CAR STATS ══════════════════════════════════════════ -->
+  <div *ngIf="phase === 'car-stats' && raceResult" class="car-stats-screen">
+    <div class="src-eyebrow">// ÉTAT DE LA VOITURE</div>
+    <h2 class="stats-car-name" [style.color]="raceResult.carStats.teamColor">{{ raceResult.carStats.carName }}</h2>
+
+    <!-- Stats principales -->
+    <div class="car-stats-grid">
+      <div class="csg-card">
+        <div class="csg-label">Puissance</div>
+        <div class="csg-val" [style.color]="raceResult.carStats.teamColor">{{ raceResult.carStats.power }} CH</div>
+        <div class="csg-sub" *ngIf="raceResult.carStats.engineBonus > 0">+{{ raceResult.carStats.engineBonus }} CH amélioré</div>
+        <div class="csg-bar-track"><div class="csg-bar" [style.width.%]="powerPercent(raceResult.carStats.power)" [style.background]="raceResult.carStats.teamColor"></div></div>
+      </div>
+      <div class="csg-card">
+        <div class="csg-label">Poids</div>
+        <div class="csg-val">{{ raceResult.carStats.weight }} kg</div>
+        <div class="csg-sub" *ngIf="raceResult.carStats.weightBonus > 0">-{{ raceResult.carStats.weightBonus * 10 }} kg allégé</div>
+        <div class="csg-bar-track"><div class="csg-bar" [style.width.%]="weightPercent(raceResult.carStats.weight)"></div></div>
+      </div>
+      <div class="csg-card">
+        <div class="csg-label">Grip</div>
+        <div class="csg-val">×{{ raceResult.carStats.grip | number:'1.2-2' }}</div>
+        <div class="csg-sub" *ngIf="raceResult.carStats.gripBonus > 0">+{{ raceResult.carStats.gripBonus * 0.02 | number:'1.2-2' }} amélioré</div>
+        <div class="csg-bar-track"><div class="csg-bar" [style.width.%]="gripPercent(raceResult.carStats.grip)"></div></div>
+      </div>
+    </div>
+
+    <!-- Usure après la course -->
+    <div class="wear-after-race">
+      <div class="war-title">Usure après 3 tours</div>
+      <div class="war-row">
+        <span class="war-lbl">Pneus</span>
+        <div class="wear-bar-track"><div class="wear-bar" [class]="tireColor(raceResult.carStats.finalTireWear)" [style.width.%]="raceResult.carStats.finalTireWear"></div></div>
+        <span class="war-val" [class]="'wear-' + tireColor(raceResult.carStats.finalTireWear)">{{ raceResult.carStats.finalTireWear | number:'1.0-0' }}%</span>
+      </div>
+      <div class="war-row">
+        <span class="war-lbl">Huile</span>
+        <div class="wear-bar-track"><div class="wear-bar" [class]="oilColor(raceResult.carStats.finalOilQuality)" [style.width.%]="raceResult.carStats.finalOilQuality"></div></div>
+        <span class="war-val" [class]="'wear-' + oilColor(raceResult.carStats.finalOilQuality)">{{ raceResult.carStats.finalOilQuality | number:'1.0-0' }}%</span>
+      </div>
+    </div>
+
+    <!-- Scores par tour -->
+    <div class="lap-scores">
+      <div class="ls-title">Scores par tour</div>
+      <div class="ls-row" *ngFor="let score of raceResult.carStats.lapScores; let i = index">
+        <span class="ls-lap">Tour {{ i + 1 }}</span>
+        <div class="ls-bar-track"><div class="ls-bar" [style.width.%]="(score / 25) * 100" [style.background]="raceResult.carStats.teamColor"></div></div>
+        <span class="ls-val">{{ score | number:'1.1-1' }}</span>
+        <span class="ls-diff" *ngIf="i > 0" [class.neg]="score < raceResult.carStats.lapScores[i-1]">
+          {{ score > raceResult.carStats.lapScores[i-1] ? '+' : '' }}{{ (score - raceResult.carStats.lapScores[i-1]) | number:'1.1-1' }}
+        </span>
+      </div>
+    </div>
+
+    <div class="result-nav">
+      <button class="btn-continue" (click)="phase = 'race-result'">← Résultats</button>
+      <button *ngIf="!raceResult.seasonOver" class="btn-upgrades" (click)="goToUpgrades()">⚙ Améliorer</button>
+      <button class="btn-continue" (click)="backToSeason()">Course suivante →</button>
+    </div>
+  </div>
+
+  <!-- ══ UPGRADES ═══════════════════════════════════════════ -->
+  <div *ngIf="phase === 'upgrades' && upgradeMenu" class="upgrades-screen">
+    <div class="src-eyebrow">// DÉVELOPPEMENT VOITURE</div>
+    <h2 class="upgrade-team-name" [style.color]="upgradeMenu.teamColor">{{ upgradeMenu.teamName }}</h2>
+    <div class="upgrade-budget">Budget disponible : <span class="budget-val">{{ upgradeMenu.budget | number }} CR</span></div>
+
+    <div *ngIf="upgradeMsg" class="upgrade-feedback" [class.err]="upgradeMsg.startsWith('Budget') || upgradeMsg.startsWith('déjà')">{{ upgradeMsg }}</div>
+
+    <!-- Stats actuelles -->
+    <div class="current-stats">
+      <div class="cs-item"><span class="cs-lbl">Puissance</span><span class="cs-val" [style.color]="upgradeMenu.teamColor">{{ upgradeMenu.power }} CH</span></div>
+      <div class="cs-item"><span class="cs-lbl">Grip</span><span class="cs-val">×{{ upgradeMenu.grip | number:'1.2-2' }}</span></div>
+      <div class="cs-item"><span class="cs-lbl">Poids</span><span class="cs-val">{{ upgradeMenu.weight }} kg</span></div>
+    </div>
+
+    <!-- Options d'upgrade -->
+    <div class="upgrade-cards">
+      <div class="upgrade-card" *ngFor="let opt of upgradeMenu.options" [class.cant-afford]="!opt.canAfford">
+        <div class="uc-icon">{{ opt.type === 'engine' ? '⚡' : opt.type === 'grip' ? '🏎' : '⚖' }}</div>
+        <div class="uc-name">{{ opt.name }}</div>
+        <div class="uc-desc">{{ opt.description }}</div>
+        <div class="uc-footer">
+          <span class="uc-cost" [class.cant]="!opt.canAfford">{{ opt.cost | number }} CR</span>
+          <button class="btn-upgrade" [disabled]="!opt.canAfford" (click)="applyUpgrade(opt.type)">
+            {{ opt.canAfford ? '▸ Acheter' : '✗ Budget' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-nav">
+      <button class="btn-continue" (click)="phase = raceResult ? 'race-result' : 'season'">← Retour</button>
+    </div>
+  </div>
+
+  <!-- ══ SEASON OVER ════════════════════════════════════════ -->
+  <div *ngIf="phase === 'season-over' && season" class="season-over-screen">
+    <div class="src-header">
+      <div class="src-eyebrow">// FIN DE SAISON</div>
+      <h1 class="src-title" [style.color]="season.teamColor">{{ season.teamName }}</h1>
+    </div>
+    <div class="final-stats">
+      <div class="fs-item"><span class="fs-lbl">Points</span><span class="fs-val" [style.color]="season.teamColor">{{ season.playerPoints }}</span></div>
+      <div class="fs-item"><span class="fs-lbl">Gains</span><span class="fs-val gold">{{ season.playerEarnings | number }} CR</span></div>
+      <div class="fs-item"><span class="fs-lbl">Courses</span><span class="fs-val">{{ season.totalRaces }}</span></div>
+    </div>
+    <div class="race-history">
+      <div class="rh-label">Historique</div>
+      <div class="rh-chips">
+        <div *ngFor="let pos of season.racePositions; let i = index" class="rh-chip" [class.top1]="pos === 1" [class.top3]="pos > 1 && pos <= 3" [class.top10]="pos > 3 && pos <= 10" [class.back]="pos > 10">
+          C{{ i + 1 }}: {{ posLabel(pos) }}
+        </div>
+      </div>
+    </div>
+    <button class="btn-new-season" (click)="startNewSeason()">▸ Nouvelle saison</button>
+    <div class="nav-row"><button (click)="goBack()" class="btn btn-outline-primary">← Garage</button></div>
+  </div>
+
+</div>
+<ng-template #loadingTpl><div class="loading-state">Chargement SRC...</div></ng-template>

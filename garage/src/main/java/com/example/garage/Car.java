@@ -20,7 +20,14 @@ public class Car {
     @Enumerated(EnumType.STRING)
     private AspirationType aspiration;
 
-    private String tireType;
+    private String tireType;   // catégorie: Street / Sport / Racing
+
+    /**
+     * Modèle précis de pneu.
+     * Street, Sport,
+     * Racing_SuperSoft, Racing_Soft, Racing_Medium, Racing_Hard, Racing_SuperHard
+     */
+    private String tireModel  = "Street";  // valeur par défaut
 
     // ── Wear & Maintenance ────────────────────────────────
     /** Usure des pneus : 100 = neuf, 0 = complètement usé */
@@ -59,6 +66,8 @@ public class Car {
     public void   setAspiration(AspirationType a) { this.aspiration = a; }
     public String getTireType()              { return tireType; }
     public void   setTireType(String t)      { this.tireType = t; }
+    public String getTireModel()             { return tireModel != null ? tireModel : "Street"; }
+    public void   setTireModel(String v)     { this.tireModel = v; }
     public double getTireWear()              { return tireWear; }
     public void   setTireWear(double v)      { this.tireWear = v; }
     public double getOilQuality()            { return oilQuality; }

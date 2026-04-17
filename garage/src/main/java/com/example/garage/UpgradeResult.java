@@ -78,8 +78,8 @@ public class UpgradeResult {
     public int getBrakesLevel()             { return brakesLevel; }
     public void setBrakesLevel(int v)       { this.brakesLevel = v; }
 
-    public int getWeightLevelVal()          { return weightLevel; }
-    public void setWeightLevelVal(int v)    { this.weightLevel = v; }
+    public int getWeightLevel()             { return weightLevel; }
+    public void setWeightLevel(int v)       { this.weightLevel = v; }
 
     public int getTiresLevel()              { return tiresLevel; }
     public void setTiresLevel(int v)        { this.tiresLevel = v; }

@@ -21,6 +21,9 @@ public class RaceResult {
     // Usure après la course
     private double  newTireWear;
     private double  newOilQuality;
+    private String  tireModel;        // modèle pneu actuel
+    private double  tireWearRate;     // multiplicateur usure (1.0=normal, 3.5=supersoft)
+    private double  tireWearPerRace;  // usure réelle cette course
 
     // Gang / progression
     private boolean gangMemberDefeated;
@@ -102,4 +105,22 @@ public class RaceResult {
     public void    setBetMultiplier(double v)       { this.betMultiplier = v; }
     public long    getActualGain()                  { return actualGain; }
     public void    setActualGain(long v)            { this.actualGain = v; }
+	public String getTireModel() {
+		return tireModel;
+	}
+	public void setTireModel(String tireModel) {
+		this.tireModel = tireModel;
+	}
+	public double getTireWearRate() {
+		return tireWearRate;
+	}
+	public void setTireWearRate(double tireWearRate) {
+		this.tireWearRate = tireWearRate;
+	}
+	public double getTireWearPerRace() {
+		return tireWearPerRace;
+	}
+	public void setTireWearPerRace(double tireWearPerRace) {
+		this.tireWearPerRace = tireWearPerRace;
+	}
 }

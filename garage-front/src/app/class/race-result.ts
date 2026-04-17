@@ -28,4 +28,8 @@ export class RaceResult {
   difficulty!: number;
   difficultyLabel!: string;
   betMultiplier!: number;
+  // Nouveaux champs pneus
+  tireModel!: string;
+  tireWearRate!: number;
+  tireWearPerRace!: number;
 }

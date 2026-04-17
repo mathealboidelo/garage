@@ -70,6 +70,8 @@ public class ParkingController {
         // Adversaires random / spéciaux
         for (Racers r : others) {
             if (r.isSpecial() && user.getReputation() < r.getReputationRequired()) continue;
+            // Les wanderers battus disparaissent définitivement
+            if (r.isSpecial() && defeated.contains(r.getId())) continue;
             visible.add(new RacerView(r, defeated.contains(r.getId()), false, false));
         }
 

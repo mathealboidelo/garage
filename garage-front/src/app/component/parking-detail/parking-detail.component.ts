@@ -32,15 +32,31 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
   betError = '';
   betCar = false;
 
-  // Race animation
+  // ── Race animation state ─────────────────────────────
   playerPos = 0;
   opponentPos = 0;
   raceFinished = false;
   playerFinishedFirst = false;
-  private playerSpeed = 0;
-  private opponentSpeed = 0;
   private raceInterval: any;
   private apiResult: RaceResult | null = null;
+
+  // Usure pneus en temps réel pendant la course
+  liveTireWear    = 100;   // commence à 100%, descend pendant la course
+  liveOilQuality  = 100;
+  private tireWearPerTick = 0; // calculé depuis tireWearPerRace / nbTicks
+
+  // Segment-based physics
+  private segments: Array<{type: string, value: number}> = [];
+  private playerSpeed   = 0;   // vitesse actuelle (unités/tick)
+  private opponentSpeed = 0;
+  private playerTarget  = 0;   // vitesse cible selon le segment courant
+  private opponentTarget= 0;
+  private readonly MAX_SPEED   = 1.2;  // vitesse max en ligne droite (px/%/tick)
+  private readonly ACCEL        = 0.06; // accélération par tick
+  private readonly DECEL        = 0.09; // décélération par tick (freinage)
+  // Label segment courant pour affichage
+  currentSegmentLabel = '';
+  playerAhead = false;
 
   // Result
   result: RaceResult | null = null;
@@ -153,18 +169,21 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
     this.phase = 'racing';
     this.playerPos = 0; this.opponentPos = 0;
     this.raceFinished = false; this.apiResult = null;
+    this.playerSpeed = 0; this.opponentSpeed = 0;
+    this.playerTarget = 0; this.opponentTarget = 0;
+    this.currentSegmentLabel = 'Départ...';
+    this.playerAhead = false;
+    // Usure temps réel : part du tireWear actuel de la voiture
+    this.liveTireWear   = this.selectedCar?.tireWear   ?? 100;
+    this.liveOilQuality = this.selectedCar?.oilQuality ?? 100;
+    this.tireWearPerTick = 0; // sera calculé quand l'API répond
 
-    this.playerSpeed   = 0.45 + Math.random() * 0.15;
-    this.opponentSpeed = 0.45 + Math.random() * 0.15;
+    // Parse segments pour la physique
+    this.segments = this.generatedRace?.segments
+      ? this.parseSegments(this.generatedRace.segments)
+      : [];
 
-    this.raceInterval = setInterval(() => {
-      if (this.raceFinished) return;
-      this.playerPos   = Math.min(this.playerPos   + this.playerSpeed,   100);
-      this.opponentPos = Math.min(this.opponentPos + this.opponentSpeed, 100);
-      if (this.apiResult && (this.playerPos >= 92 || this.opponentPos >= 92)) {
-        this.finishRace();
-      }
-    }, 50);
+    this.raceInterval = setInterval(() => this.animTick(), 50);
 
     this.raceService.runRace({
       userId:     this.user.id,
@@ -180,10 +199,117 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  /** Appelé à chaque tick (50ms) — moteur de simulation segment par segment */
+  private animTick() {
+    if (this.raceFinished) return;
+
+    // ── Calcule la vitesse cible selon le segment courant ──
+    // On détermine dans quel segment se trouve chaque voiture
+    const pTarget = this.segmentTargetSpeed(this.playerPos,   this.apiResult, true);
+    const oTarget = this.segmentTargetSpeed(this.opponentPos, this.apiResult, false);
+
+    // ── Accélération/freinage progressif ──────────────────
+    this.playerSpeed   = this.approach(this.playerSpeed,   pTarget, this.ACCEL, this.DECEL);
+    this.opponentSpeed = this.approach(this.opponentSpeed, oTarget, this.ACCEL, this.DECEL);
+
+    // ── Micro-bruit pour rendre la course imprévisible ─────
+    const pNoise = 1 + (Math.random() - 0.5) * 0.12;
+    const oNoise = 1 + (Math.random() - 0.5) * 0.12;
+
+    this.playerPos   = Math.min(this.playerPos   + this.playerSpeed   * pNoise, 100);
+    this.opponentPos = Math.min(this.opponentPos + this.opponentSpeed * oNoise, 100);
+
+    // ── Mise à jour label segment ─────────────────────────
+    this.currentSegmentLabel = this.getSegmentLabel(this.playerPos);
+    this.playerAhead = this.playerPos >= this.opponentPos;
+
+    // ── Usure pneus temps réel ───────────────────────────
+    if (this.tireWearPerTick > 0) {
+      this.liveTireWear   = Math.max(0, this.liveTireWear   - this.tireWearPerTick);
+      this.liveOilQuality = Math.max(0, this.liveOilQuality - this.tireWearPerTick * 0.5);
+    }
+
+    // ── Fin de course ─────────────────────────────────────
+    if (this.apiResult && (this.playerPos >= 92 || this.opponentPos >= 92)) {
+      this.finishRace();
+    }
+  }
+
+  /**
+   * Calcule la vitesse cible pour une position donnée.
+   * En droite → vitesse max pondérée par la perf de la voiture.
+   * En virage → ralentissement proportionnel à l'angle (angle élevé = très lent).
+   * Si apiResult est disponible, on scale sur le score réel.
+   */
+  private segmentTargetSpeed(pos: number, res: RaceResult | null, isPlayer: boolean): number {
+    // Base speed from score ratio
+    let baseSpeed = this.MAX_SPEED * 0.6; // avant que l'API réponde
+    if (res) {
+      const ps = res.playerScore, os = res.opponentScore;
+      const myScore = isPlayer ? ps : os;
+      const maxScore = Math.max(ps, os, 0.001);
+      baseSpeed = this.MAX_SPEED * 0.4 + (myScore / maxScore) * this.MAX_SPEED * 0.6;
+    }
+
+    // Détermine le segment actuel (0-100% → quelle portion du circuit)
+    if (this.segments.length === 0) return baseSpeed;
+
+    // Longueur totale des segments
+    const totalLen = this.segments.reduce((s, seg) =>
+      s + (seg.type === 'S' ? seg.value : seg.value / 3), 0);
+    const targetUnit = (pos / 100) * totalLen;
+
+    let cursor = 0;
+    for (const seg of this.segments) {
+      const segLen = seg.type === 'S' ? seg.value : seg.value / 3;
+      if (cursor + segLen >= targetUnit) {
+        if (seg.type === 'S') {
+          return baseSpeed; // pleine vitesse en droite
+        } else {
+          // Virage : réduction selon angle
+          // 30°=0.85, 90°=0.55, 150°=0.25
+          const factor = Math.max(0.20, 1.0 - (seg.value - 30) / 160);
+          // Préfreinage : si le prochain segment est un virage, on commence à freiner avant
+          return baseSpeed * factor;
+        }
+      }
+      cursor += segLen;
+    }
+    return baseSpeed;
+  }
+
+  /** Approche douce d'une vitesse cible avec accél/décel différenciées */
+  private approach(current: number, target: number, accel: number, decel: number): number {
+    if (current < target) return Math.min(current + accel, target);
+    if (current > target) return Math.max(current - decel, target);
+    return current;
+  }
+
+  /** Label du segment courant pour l'affichage */
+  private getSegmentLabel(pos: number): string {
+    if (this.segments.length === 0) return '';
+    const totalLen = this.segments.reduce((s, seg) =>
+      s + (seg.type === 'S' ? seg.value : seg.value / 3), 0);
+    const targetUnit = (pos / 100) * totalLen;
+    let cursor = 0;
+    for (const seg of this.segments) {
+      const segLen = seg.type === 'S' ? seg.value : seg.value / 3;
+      if (cursor + segLen >= targetUnit) {
+        if (seg.type === 'S') return '⚡ Ligne droite';
+        if (seg.value <= 45)  return '↗ Virage rapide ' + seg.value + '°';
+        if (seg.value <= 90)  return '↪ Virage ' + seg.value + '°';
+        return '🔴 Virage serré ' + seg.value + '°';
+      }
+      cursor += segLen;
+    }
+    return '';
+  }
+
   private adjustSpeeds(res: RaceResult) {
-    const ps = res.playerScore, os = res.opponentScore, total = ps + os;
-    this.playerSpeed   = 0.8 * (ps / total) * 2;
-    this.opponentSpeed = 0.8 * (os / total) * 2;
+    // Calcule l'usure pneus par tick (course dure ~100 ticks pour couvrir 92%)
+    // L'API retourne tireWearPerRace (usure totale d'une course)
+    const totalTicks = 92 / 0.6; // estimation: vitesse moy × ticks ≈ 92%
+    this.tireWearPerTick = (res.tireWearPerRace ?? 8) / totalTicks;
   }
 
   private finishRace() {
@@ -207,7 +333,9 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
         this.selectedCar.tireWear   = this.apiResult.newTireWear;
         this.selectedCar.oilQuality = this.apiResult.newOilQuality;
       }
-      if ((this.apiResult!.gangMemberDefeated || this.apiResult!.bossDefeated) && this.user) {
+      // Recharge le parking si gang, boss OU wanderer battu
+      if ((this.apiResult!.gangMemberDefeated || this.apiResult!.bossDefeated
+           || this.apiResult!.specialCarUnlocked) && this.user) {
         const id = Number(this.route.snapshot.paramMap.get('id'));
         this.parkingService.getParkingForUser(id, this.user.id).subscribe(pv => this.parkingView = pv);
       }
@@ -274,6 +402,28 @@ export class ParkingDetailComponent implements OnInit, OnDestroy {
     if (power >= 200) return 'B';
     if (power >= 150) return 'C';
     return 'D';
+  }
+
+  /** Parse segments string → array of {type, value} for display */
+  parseSegments(segs: string | undefined): Array<{type: string, value: number}> {
+    if (!segs) return [];
+    return segs.split(',').map(s => {
+      const [t, v] = s.trim().split(':');
+      return { type: t, value: parseInt(v) };
+    });
+  }
+
+  cornerLabel(angle: number): string {
+    if (angle <= 45)  return 'Rapide';
+    if (angle <= 90)  return 'Moyen';
+    if (angle <= 120) return 'Serré';
+    return 'Épingle';
+  }
+
+  cornerColor(angle: number): string {
+    if (angle <= 45)  return 'cyan';
+    if (angle <= 90)  return 'gold';
+    return 'mag';
   }
 
   tireColor(v: number): string { return v > 60 ? 'cyan' : v > 30 ? 'gold' : 'mag'; }

@@ -63,6 +63,15 @@ export class UserService {
     );
   }
 
+  public cheatRep(): Observable<string> {
+    const sessionUser = this.getSession();
+    return this.http.post(
+      `http://localhost:8080/api/cheatrep/${sessionUser?.id}`,
+      {},
+      { responseType: 'text' }
+    );
+  }
+
   public cheat(): Observable<string> {
     const sessionUser = this.getSession();
     return this.http.post(

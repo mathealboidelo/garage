@@ -302,3 +302,44 @@
 .rep-val{color:var(--neon-gold)}
 .btn-wanderer-challenge{font-family:var(--font-hud);font-size:.65rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;padding:.5rem 1.2rem;background:transparent;border:1px solid var(--neon-gold);color:var(--neon-gold);cursor:pointer;transition:all .15s;flex-shrink:0}
 .btn-wanderer-challenge:hover{background:rgba(255,215,0,.1);box-shadow:var(--glow-gold)}
+
+/* ── Circuit segments display ─────────────────────────── */
+.circuit-segments{margin-bottom:.75rem}
+.seg-label{font-family:var(--font-mono);font-size:.58rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.2em;margin-bottom:.5rem}
+.seg-track{display:flex;height:28px;border-radius:3px;overflow:hidden;border:1px solid var(--border-subtle);gap:1px}
+.seg-straight{background:rgba(0,240,255,.12);border-right:1px solid rgba(0,240,255,.15);display:flex;align-items:center;justify-content:center;min-width:6px;transition:opacity .2s}
+.seg-straight:hover{opacity:.7}
+.seg-corner{display:flex;align-items:center;justify-content:center;min-width:8px;transition:opacity .2s}
+.seg-corner:hover{opacity:.7}
+.seg-corner-cyan{background:rgba(0,240,255,.25)}
+.seg-corner-gold{background:rgba(255,215,0,.25)}
+.seg-corner-mag {background:rgba(255,0,60,.25)}
+.seg-text{font-family:var(--font-mono);font-size:.45rem;color:rgba(255,255,255,.5);text-align:center;overflow:hidden;white-space:nowrap;text-overflow:clip}
+.seg-legend{display:flex;gap:.75rem;margin-top:.4rem;flex-wrap:wrap}
+.seg-legend-item{font-family:var(--font-mono);font-size:.52rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em}
+.straight-legend{color:rgba(0,240,255,.6)}
+.corner-cyan{color:rgba(0,240,255,.9)}
+.corner-gold{color:rgba(255,215,0,.9)}
+.corner-mag{color:rgba(255,0,60,.9)}
+
+/* ── Racing track segments (same visual as preview) ────── */
+.track-seg-straight{background:rgba(0,240,255,.12);flex-shrink:0}
+.track-seg-corner{flex-shrink:0}
+.track-seg-corner-cyan{background:rgba(0,240,255,.3)}
+.track-seg-corner-gold{background:rgba(255,215,0,.3)}
+.track-seg-corner-mag {background:rgba(255,0,60,.3)}
+
+/* ── Segment ticker & tension ─────────────────────────── */
+.segment-ticker{display:flex;align-items:center;justify-content:space-between;padding:.4rem .75rem;background:rgba(255,255,255,.03);border:1px solid var(--border-subtle);border-radius:2px;margin-top:.75rem;font-family:var(--font-mono);font-size:.65rem}
+.seg-ticker-label{color:var(--text-secondary);text-transform:uppercase;letter-spacing:.12em}
+.seg-ticker-gap{font-family:var(--font-hud);font-size:.62rem;font-weight:700;padding:.15rem .6rem;border-radius:2px}
+.seg-ticker-gap.ahead{color:var(--neon-cyan);text-shadow:var(--glow-cyan)}
+.seg-ticker-gap.behind{color:var(--neon-magenta);text-shadow:var(--glow-magenta)}
+
+/* ── Live tire wear during race ───────────────────────── */
+.live-wear-row{display:flex;gap:1rem;padding:.6rem .75rem;background:rgba(255,255,255,.03);border:1px solid var(--border-subtle);border-radius:2px;margin-bottom:.5rem;flex-wrap:wrap}
+.live-wear-item{display:flex;align-items:center;gap:.5rem;flex:1;min-width:130px}
+.live-wear-lbl{font-family:var(--font-mono);font-size:.55rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;min-width:46px}
+.live-wear-track{flex:1;height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.live-wear-fill{height:100%;border-radius:3px;transition:width .2s linear}
+.live-wear-val{font-family:var(--font-mono);font-size:.6rem;min-width:32px;text-align:right}

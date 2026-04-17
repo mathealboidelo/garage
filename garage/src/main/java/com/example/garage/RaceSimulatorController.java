@@ -88,6 +88,7 @@ public class RaceSimulatorController {
         gen.setRaceName(race.getName());
         gen.setStraightLine(race.getStraigthLine());
         gen.setCorner(race.getCorner());
+        gen.setSegments(race.getSegments());
 
         // ── Calcul de difficulté ──────────────────────────
         int diff = computeDifficulty(playerCar, opponent, race);
@@ -154,12 +155,12 @@ public class RaceSimulatorController {
             // PAS de vérification "au moins 2 voitures" — c'est voulu, c'est punitif
         }
 
-        // ── Score ─────────────────────────────────────────
+        // ── Score (simulation par segments) ──────────────
+        double playerScore   = computeScore(playerCar, race);
+        double opponentScore = computeScore(opponent.getCar(), race);
+        // Ratios legacy pour affichage et difficulté
         double sr = race.getStraigthLine() / 100.0;
         double cr = race.getCorner()       / 100.0;
-
-        double playerScore   = computeScore(playerCar, sr, cr);
-        double opponentScore = computeScore(opponent.getCar(), sr, cr);
         boolean won = playerScore > opponentScore;
 
         // ── Difficulté et multiplicateur ──────────────────
@@ -217,6 +218,8 @@ public class RaceSimulatorController {
             user.setWins(user.getWins() + 1);
             if (opponent.isSpecial()) {
                 repEarned = REP_WIN_SPECIAL;
+                // Wanderer battu → disparaît définitivement
+                progress.addDefeated(opponent.getId());
                 if (opponent.getSpecialCarForSale() != null) {
                     Car sc = opponent.getSpecialCarForSale();
                     List<Dealership> dealers = dealerRepo.findAll();
@@ -263,6 +266,10 @@ public class RaceSimulatorController {
         result.setNewReputation(user.getReputation());
         result.setNewTireWear(r2(newTire));
         result.setNewOilQuality(r2(newOil));
+        result.setTireModel(playerCar.getTireModel());
+        double tireWearRate = wearRateFromModel(playerCar.getTireModel());
+        result.setTireWearRate(tireWearRate);
+        result.setTireWearPerRace(r2(TIRE_WEAR_PER_RACE * tireWearRate));
         result.setGangMemberDefeated(gangMemberDefeated);
         result.setBossDefeated(bossDefeated);
         result.setCarWager(req.betCar());
@@ -371,38 +378,147 @@ public class RaceSimulatorController {
     }
 
     // ══════════════════════════════════════════════════════
-    //  FORMULE DE SIMULATION
+    //  FORMULE DE SIMULATION — SEGMENTS INTERCALÉS
     // ══════════════════════════════════════════════════════
+    //
+    //  Le score est calculé segment par segment :
+    //    S (straight) → performance = puissance/poids × aspiration × oilMulti
+    //    C (corner)   → performance = grip × tireCoeff × tireMulti × (1/poids)
+    //                               × angleMalus : plus l'angle est serré, moins
+    //                                 la vitesse de passage est élevée
+    //
+    //  angleMalus(θ) = 1 - (θ - 30) / 200
+    //    θ=30°  → 1.00 (virage rapide, quasiment pas pénalisé)
+    //    θ=90°  → 0.70 (virage moyen)
+    //    θ=150° → 0.40 (virage très serré)
+    //
+    //  Chaque segment contribue proportionnellement à sa longueur.
+    //  Le score total = somme pondérée des scores de chaque segment.
 
-    /** Avec bruit gaussien (utilisé pour la vraie course) */
+    /** Avec bruit gaussien (vraie course) */
+    private double computeScore(Car car, Race race) {
+        return computeScoreFromSegments(car, race, true);
+    }
+
+    /** Sans bruit (estimation difficulté) */
+    private double computeScoreDeterministic(Car car, Race race) {
+        return computeScoreFromSegments(car, race, false);
+    }
+
+    // Méthodes legacy gardées pour la compatibilité avec computeDifficulty
     private double computeScore(Car car, double sr, double cr) {
         double tireMulti = 0.80 + (car.getTireWear() / 100.0) * 0.20;
         double oilMulti  = 0.85 + (car.getOilQuality() / 100.0) * 0.15;
         double aspBonus  = "TURBO".equalsIgnoreCase(car.getAspiration().name()) ? 1.15 : 1.0;
         double straight  = (car.getPower() * oilMulti / car.getWeight()) * aspBonus * 100.0;
-        double corner    = car.getGripModifier() * tireMulti * tireCoeff(car.getTireType()) * (1000.0 / car.getWeight()) * 100.0;
+        double corner    = car.getGripModifier() * tireMulti * tireCoeff(car.getTireModel()) * (1000.0 / car.getWeight()) * 100.0;
         double base      = sr * straight + cr * corner;
         double noise     = clamp(1.0 + RNG.nextGaussian() * 0.08, 0.88, 1.12);
         return base * noise;
     }
-
-    /** Sans bruit (utilisé pour estimer la difficulté) */
     private double computeScoreDeterministic(Car car, double sr, double cr) {
         double tireMulti = 0.80 + (car.getTireWear() / 100.0) * 0.20;
         double oilMulti  = 0.85 + (car.getOilQuality() / 100.0) * 0.15;
         double aspBonus  = "TURBO".equalsIgnoreCase(car.getAspiration().name()) ? 1.15 : 1.0;
         double straight  = (car.getPower() * oilMulti / car.getWeight()) * aspBonus * 100.0;
-        double corner    = car.getGripModifier() * tireMulti * tireCoeff(car.getTireType()) * (1000.0 / car.getWeight()) * 100.0;
+        double corner    = car.getGripModifier() * tireMulti * tireCoeff(car.getTireModel()) * (1000.0 / car.getWeight()) * 100.0;
         return sr * straight + cr * corner;
     }
 
-    private double tireCoeff(String t) {
-        if (t == null) return 1.0;
-        return switch (t.toLowerCase()) {
+    private double computeScoreFromSegments(Car car, Race race, boolean withNoise) {
+        String segs = race.getSegments();
+
+        // Fallback si pas de segments (anciens circuits)
+        if (segs == null || segs.isBlank()) {
+            double sr = race.getStraigthLine() / 100.0;
+            double cr = race.getCorner() / 100.0;
+            return withNoise ? computeScore(car, sr, cr) : computeScoreDeterministic(car, sr, cr);
+        }
+
+        double tireMulti = 0.80 + (car.getTireWear() / 100.0) * 0.20;
+        double oilMulti  = 0.85 + (car.getOilQuality() / 100.0) * 0.15;
+        double aspBonus  = "TURBO".equalsIgnoreCase(car.getAspiration().name()) ? 1.15 : 1.0;
+        double tc        = tireCoeff(car.getTireModel());
+
+        double totalWeight = 0;
+        double totalScore  = 0;
+
+        String[] parts = segs.split(",");
+        for (String part : parts) {
+            String[] kv = part.trim().split(":");
+            if (kv.length != 2) continue;
+            String type = kv[0].trim();
+            int    val  = Integer.parseInt(kv[1].trim());
+
+            double segScore;
+            if ("S".equals(type)) {
+                // Ligne droite : puissance, poids, aspiration, huile
+                segScore = (car.getPower() * oilMulti / car.getWeight()) * aspBonus * 100.0;
+            } else { // "C"
+                // Virage : grip, pneus, angle
+                double angleMalus = 1.0 - (val - 30.0) / 200.0;  // 30°→1.0, 90°→0.70, 150°→0.40
+                angleMalus = Math.max(0.25, angleMalus);           // plancher 0.25
+                segScore = car.getGripModifier() * tireMulti * tc
+                         * (1000.0 / car.getWeight()) * angleMalus * 100.0;
+            }
+
+            totalScore  += segScore * val;
+            totalWeight += val;
+        }
+
+        double base = totalWeight > 0 ? totalScore / totalWeight : 0;
+        if (withNoise) {
+            double noise = clamp(1.0 + RNG.nextGaussian() * 0.08, 0.88, 1.12);
+            return base * noise;
+        }
+        return base;
+    }
+
+    /**
+     * Coefficient de grip selon le modèle de pneu (tireModel).
+     * Les pneus racing tendres donnent plus de grip MAIS s'usent très vite.
+     * L'usure est gérée séparément via wearRateFromModel().
+     */
+    private double tireCoeff(String tireModel) {
+        if (tireModel == null) return 1.0;
+        return switch (tireModel.toLowerCase()) {
+            case "racing_supersoft" -> 1.35;
+            case "racing_soft"      -> 1.28;
+            case "racing_medium"    -> 1.20;
+            case "racing_hard"      -> 1.13;
+            case "racing_superhard" -> 1.06;
+            case "sport_soft"       -> 1.13;
+            case "sport"            -> 1.10;
+            case "sport_hard"       -> 1.07;
+            case "street_soft"      -> 1.03;
+            case "street"           -> 1.00;
+            case "street_hard"      -> 0.98;
+            // fallback ancien système
             case "slick"      -> 1.20;
             case "semi-slick" -> 1.10;
-            case "rain"       -> 0.85;
             default           -> 1.00;
+        };
+    }
+
+    /**
+     * Multiplicateur d'usure par course selon le modèle de pneu.
+     * Plus les pneus sont tendres, plus ils s'usent vite.
+     */
+    private double wearRateFromModel(String tireModel) {
+        if (tireModel == null) return 1.0;
+        return switch (tireModel.toLowerCase()) {
+            case "racing_supersoft" -> 3.5;
+            case "racing_soft"      -> 2.5;
+            case "racing_medium"    -> 1.6;
+            case "racing_hard"      -> 1.0;
+            case "racing_superhard" -> 0.7;
+            case "sport_soft"       -> 1.0;
+            case "sport"            -> 0.85;
+            case "sport_hard"       -> 0.7;
+            case "street_soft"      -> 1.1;
+            case "street"           -> 1.0;
+            case "street_hard"      -> 0.8;
+            default                 -> 1.0;
         };
     }
 

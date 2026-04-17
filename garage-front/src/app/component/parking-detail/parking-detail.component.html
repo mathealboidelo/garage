@@ -159,8 +159,33 @@
           <button class="btn-reroll" (click)="rerollRace()" title="Relancer">↺ Rejouer</button>
         </div>
 
-        <!-- Topologie -->
-        <div class="race-topo">
+        <!-- Segments intercalés droite/virage -->
+        <div class="circuit-segments" *ngIf="generatedRace.segments">
+          <div class="seg-label">Profil du circuit</div>
+          <div class="seg-track">
+            <ng-container *ngFor="let seg of parseSegments(generatedRace.segments)">
+              <div *ngIf="seg.type === 'S'" class="seg-straight"
+                [style.flex]="seg.value"
+                [title]="'Droite ' + seg.value + 'm'">
+                <span class="seg-text">D</span>
+              </div>
+              <div *ngIf="seg.type === 'C'" class="seg-corner"
+                [class]="'seg-corner-' + cornerColor(seg.value)"
+                [style.flex]="seg.value / 3"
+                [title]="'Virage ' + seg.value + '°'">
+                <span class="seg-text">{{ seg.value }}°</span>
+              </div>
+            </ng-container>
+          </div>
+          <div class="seg-legend">
+            <span class="seg-legend-item straight-legend">■ Ligne droite</span>
+            <span class="seg-legend-item corner-cyan">■ Rapide (≤45°)</span>
+            <span class="seg-legend-item corner-gold">■ Moyen (46-90°)</span>
+            <span class="seg-legend-item corner-mag">■ Serré (>90°)</span>
+          </div>
+        </div>
+        <!-- Fallback pourcentages si pas de segments -->
+        <div class="race-topo" *ngIf="!generatedRace.segments">
           <div class="topo-bar">
             <span class="topo-label">Ligne droite</span>
             <div class="topo-track"><div class="topo-fill cyan" [style.width.%]="generatedRace.straightLine"></div></div>
@@ -261,8 +286,18 @@
       </div>
       <div class="circuit-track">
         <div class="track-bg">
-          <div class="track-straight" [style.width.%]="generatedRace?.straightLine || 80"></div>
-          <div class="track-corner"   [style.width.%]="generatedRace?.corner || 20"></div>
+          <ng-container *ngIf="generatedRace?.segments; else fallbackBg">
+            <ng-container *ngFor="let seg of parseSegments(generatedRace?.segments)">
+              <div *ngIf="seg.type === 'S'" class="track-seg-straight" [style.flex]="seg.value"></div>
+              <div *ngIf="seg.type === 'C'" class="track-seg-corner"
+                [class]="'track-seg-corner-' + cornerColor(seg.value)"
+                [style.flex]="seg.value / 3"></div>
+            </ng-container>
+          </ng-container>
+          <ng-template #fallbackBg>
+            <div class="track-straight" [style.width.%]="generatedRace?.straightLine || 80"></div>
+            <div class="track-corner"   [style.width.%]="generatedRace?.corner || 20"></div>
+          </ng-template>
         </div>
         <div class="start-line"></div>
         <div class="race-dot player-dot" [style.left.%]="playerPos" [class.finished]="playerPos >= 99"><div class="dot-glow blue-glow"></div></div>
@@ -278,8 +313,40 @@
         <div class="pos-item"><span class="dot red-dot sm"></span><span class="pos-name">{{ selectedOpponent?.displayName }}</span><span class="pos-pct">{{ opponentPos | number:'1.0-0' }}%</span></div>
       </div>
     </div>
+    <!-- Usure pneus temps réel -->
+    <div class="live-wear-row" *ngIf="!raceFinished">
+      <div class="live-wear-item">
+        <span class="live-wear-lbl">🔴 Pneus</span>
+        <div class="live-wear-track">
+          <div class="live-wear-fill"
+            [class]="tireColor(liveTireWear)"
+            [style.width.%]="liveTireWear"></div>
+        </div>
+        <span class="live-wear-val" [class]="'wear-' + tireColor(liveTireWear)">{{ liveTireWear | number:'1.0-0' }}%</span>
+      </div>
+      <div class="live-wear-item">
+        <span class="live-wear-lbl">🟡 Huile</span>
+        <div class="live-wear-track">
+          <div class="live-wear-fill"
+            [class]="oilColor(liveOilQuality)"
+            [style.width.%]="liveOilQuality"></div>
+        </div>
+        <span class="live-wear-val" [class]="'wear-' + oilColor(liveOilQuality)">{{ liveOilQuality | number:'1.0-0' }}%</span>
+      </div>
+    </div>
+
+    <!-- Segment actuel + tension live -->
+    <div class="segment-ticker" *ngIf="!raceFinished">
+      <span class="seg-ticker-label">{{ currentSegmentLabel }}</span>
+      <span class="seg-ticker-gap"
+        [class.ahead]="playerAhead"
+        [class.behind]="!playerAhead">
+        {{ playerAhead ? '▲ Tu mènes' : '▼ Tu es derrière' }}
+        · écart {{ ((playerPos - opponentPos) | number:'1.1-1') }}%
+      </span>
+    </div>
     <div class="racing-ticker">
-      <span *ngIf="!raceFinished">● Simulation en cours</span>
+      <span *ngIf="!raceFinished" class="blink">● En cours</span>
       <span *ngIf="raceFinished && playerFinishedFirst">● Tu as franchi la ligne en premier !</span>
       <span *ngIf="raceFinished && !playerFinishedFirst">● L'adversaire a franchi la ligne en premier.</span>
     </div>

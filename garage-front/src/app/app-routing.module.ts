@@ -10,6 +10,7 @@ import { ParkingComponent }          from './component/parking/parking.component
 import { ParkingDetailComponent }    from './component/parking-detail/parking-detail.component';
 import { GarageUpgradeComponent }    from './component/garage-upgrade/garage-upgrade.component';
 import { AutoShopComponent }         from './component/auto-shop/auto-shop.component';
+import { SrcChampionshipComponent }   from './component/src-championship/src-championship.component';
 
 const routes: Routes = [
   { path: '',               component: LoginComponent },
@@ -22,6 +23,7 @@ const routes: Routes = [
   { path: 'parkings/:id',   component: ParkingDetailComponent },
   { path: 'upgrade',        component: GarageUpgradeComponent },
   { path: 'autoshop',       component: AutoShopComponent },
+  { path: 'src',            component: SrcChampionshipComponent },
 ];
 
 @NgModule({
